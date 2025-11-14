@@ -14,13 +14,13 @@ const jobSchema = new mongoose.Schema(
     },
 
     skills: {
-      type: String, // You can convert this to an array later if needed
+      type: String, // can be converted to array later if needed
       required: true,
     },
 
     company: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Business",   // <-- relation to Business schema
+      ref: "Business",   // relation to Business schema
       required: true,
     },
 
@@ -40,6 +40,14 @@ const jobSchema = new mongoose.Schema(
       default: 1,
       min: 1,
     },
+
+    assignedTo: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+      }
+    ],
   },
   { timestamps: true }
 );

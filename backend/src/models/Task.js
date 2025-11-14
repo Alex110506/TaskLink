@@ -7,29 +7,26 @@ const taskSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-
     importance: {
       type: String,
-      enum: ["low", "medium", "high"], // 3-element enum
+      enum: ["low", "medium", "high"],
       required: true,
     },
-
     description: {
       type: String,
       required: true,
     },
-
-    team: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Team",       // relation to Team schema
-      required: true,
-    },
-
+    assignedTo: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+      }
+    ],
     dueDate: {
       type: Date,
       required: true,
     },
-
     status: {
       type: String,
       enum: ["not completed", "pending", "completed"],
