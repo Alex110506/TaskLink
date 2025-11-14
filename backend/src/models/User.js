@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { countries } from "./countryArray.js";
 import bcrypt from "bcryptjs"
 
 const userSchema=new mongoose.Schema({
@@ -17,36 +16,30 @@ const userSchema=new mongoose.Schema({
         required:true,
         minlength:6
     },
+    phoneNumber:{
+        type:String,
+        default:""
+    },
     bio:{
         type:String,
         default:""
     },
-    profilePic:{
+    job:{
         type:String,
         default:""
     },
-    isOnboarded:{
-        type:Boolean,
-        default:false
+    yearsExperience:{
+        type:Number,
+        default:0
     },
-    occupation:{
+    skills:{
         type:String,
         default:""
     },
-    city:{
+    location:{
         type:String,
         default:""
     },
-    country:{
-        type: String,
-        enum: countries,
-    },
-    friends:[
-        {
-            type:mongoose.Schema.Types.ObjectId,
-            ref:"User"
-        }
-    ]
 },{timestamps:true})
 
 userSchema.pre("save",async function (next) {

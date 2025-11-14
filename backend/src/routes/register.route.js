@@ -6,11 +6,15 @@ const router=express.Router();
 
 router.post("/user/signup",signup)
 router.post("/user/login",login)
-router.post("/user/logout",logout)
+router.get("/user/logout",logout)
+router.patch("/user/update/:id",logout)
+router.get("/user/profileInfo/:id",logout)
 
 router.post("/business/signup",signup)
 router.post("/business/login",login)
-router.post("/business/logout",logout)
+router.get("/business/logout",logout)
+router.patch("/business/update/:id",logout)
+router.get("/business/profileInfo/:id",logout)
 
 
 export default router
