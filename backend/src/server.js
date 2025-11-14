@@ -23,6 +23,7 @@ app.use(cors({
     : "http://localhost:5173",
   credentials: true,
 }));
+//test
 app.use(express.json())
 app.use(cookieParser())
 
@@ -33,7 +34,6 @@ app.use("/api/jobs",jobRoutes)
 
 
 const server = http.createServer(app);
-
 
 
 server.listen(PORT,()=>{
