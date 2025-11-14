@@ -125,7 +125,7 @@ export async function loginU(req,res){
             secure:process.env.NODE_ENV==="production"
         })
 
-        res.status(200).json({success:true,user})
+        res.status(200).json({success:true,user,token})
     } catch (error) {
         console.log("Signup error ",error);
         res.status(500).json({message:"Internal Server Error"})

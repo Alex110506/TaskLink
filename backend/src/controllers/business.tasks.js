@@ -3,14 +3,13 @@ import Task from "../models/Task.js";
 // Get all tasks for a specific business where the user is assigned
 export async function getTasksB(req, res) {
   try {
-    const userId = req.user._id; // assuming auth middleware sets req.user
-    const businessId = req.query.businessId; // pass businessId as query param
+    const businessId = req.user._id; // pass businessId as query param
 
     if (!businessId) {
       return res.status(400).json({ success: false, message: "Business ID is required" });
     }
 
-    const tasks = await Task.find({ business: businessId, assignedTo: userId })
+    const tasks = await Task.find({ business: businessId })
       .populate("assignedTo", "name email") // populate assigned users
       .populate("business", "name") // populate business name
       .sort({ dueDate: 1 });
@@ -42,7 +41,12 @@ export async function createTask(req, res) {
     });
 
     const savedTask = await newTask.save();
-    const populatedTask = await savedTask.populate("assignedTo", "name email").populate("business", "name");
+
+    // Correct way to populate multiple fields
+    const populatedTask = await savedTask.populate([
+      { path: "assignedTo", select: "name email" },
+      { path: "business", select: "name" }
+    ]);
 
     res.status(201).json({ success: true, task: populatedTask });
   } catch (error) {
@@ -50,6 +54,7 @@ export async function createTask(req, res) {
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 }
+
 
 // Update an existing task
 export async function updateTask(req, res) {
