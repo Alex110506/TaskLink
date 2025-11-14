@@ -1,7 +1,7 @@
 import User from "../models/User.js";
 import jwt from "jsonwebtoken"
 
-export async function signup(req, res) {
+export async function signupU(req, res) {
   const {
     email,
     password,
@@ -97,7 +97,7 @@ export async function signup(req, res) {
 }
 
 
-export async function login(req,res){
+export async function loginU(req,res){
     try {
         const {email,password}=req.body
         if(!email || !password){
@@ -132,13 +132,13 @@ export async function login(req,res){
     }
 }
 
-export async function logout(req,res){
+export async function logoutU(req,res){
     res.clearCookie("jwt")
     res.status(200).json({success:true,message:"Logout successful"})
 }
 
 
-export async function updateUser(req, res) {
+export async function updateUserU(req, res) {
   const userId = req.params.id;
   const {
     fullName,
@@ -181,7 +181,7 @@ export async function updateUser(req, res) {
 }
 
 
-export async function getUserProfile(req, res) {
+export async function getUserProfileU(req, res) {
   const userId = req.params.id;
 
   try {
