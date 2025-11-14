@@ -3,11 +3,16 @@ import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 
-export function DashboardLayout() {
+
+interface DashboardLayoutProps {
+  accountType: "personal" | "business";
+}
+
+export function DashboardLayout({ accountType }: DashboardLayoutProps) {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
-        <AppSidebar />
+        <AppSidebar accountType={accountType}/>
         <div className="flex-1 flex flex-col">
           <header className="h-16 border-b border-border bg-card flex items-center px-6 sticky top-0 z-10">
             <SidebarTrigger className="mr-4" />

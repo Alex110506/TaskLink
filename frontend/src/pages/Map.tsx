@@ -1,13 +1,15 @@
-import { MapView } from "@/components/MapView";
+import { GoogleMapView } from "@/components/MapView";
 
 const Map = () => {
   return (
     <div>
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-foreground mb-2">Locations</h2>
-        <p className="text-muted-foreground">View team locations and project sites</p>
+        <p className="text-muted-foreground">
+          View team locations and project sites
+        </p>
       </div>
-      <MapView />
+      <GoogleMapView apiKey="AIzaSyAcbBNGK21W9-YTO4xTMLKhbDkvYVpwQ1k" />
     </div>
   );
 };

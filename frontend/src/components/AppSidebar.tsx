@@ -1,5 +1,17 @@
-import { Home, Users, Map, CheckSquare, User, Briefcase, FileText, PlusSquare, Bot, Building } from "lucide-react";
+import {
+  Home,
+  Users,
+  Map,
+  CheckSquare,
+  User,
+  Briefcase,
+  FileText,
+  PlusSquare,
+  Bot,
+  Building,
+} from "lucide-react";
 import { NavLink } from "react-router-dom";
+
 import {
   Sidebar,
   SidebarContent,
@@ -10,6 +22,15 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+
+// --------------------------
+// HARDCODED TOGGLE
+// Schimbă între true / false
+// trb legat la login cel mai prob un const din app
+// --------------------------
+interface SidebarLayoutProps {
+  accountType: "personal" | "business";
+}
 
 const userMenuItems = [
   { title: "Home", url: "/", icon: Home },
@@ -29,72 +50,77 @@ const businessMenuItems = [
   { title: "Profile", url: "/business/profile", icon: Briefcase },
 ];
 
-export function AppSidebar() {
+export function AppSidebar({ accountType }: SidebarLayoutProps) {
   return (
     <Sidebar collapsible="icon">
       <SidebarContent>
-        {/* User Section */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-sidebar-foreground/70 text-xs font-semibold uppercase tracking-wider mb-2">
-            <NavLink to="/landing">
-              TaskLink
-            </NavLink>
+            <NavLink to="/landing">TaskLink</NavLink>
           </SidebarGroupLabel>
-          <SidebarGroupLabel className="text-primary text-xs font-semibold uppercase tracking-wider mt-4 mb-2">
-            User
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {userMenuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
-                    <NavLink
-                      to={item.url}
-                      end
-                      className={({ isActive }) =>
-                        isActive
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                          : "hover:bg-sidebar-accent/50"
-                      }
-                    >
-                      <item.icon className="h-5 w-5" />
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Business Section */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-accent text-xs font-semibold uppercase tracking-wider mt-4 mb-2">
-            Business
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {businessMenuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
-                    <NavLink
-                      to={item.url}
-                      end
-                      className={({ isActive }) =>
-                        isActive
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                          : "hover:bg-sidebar-accent/50"
-                      }
-                    >
-                      <item.icon className="h-5 w-5" />
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {/* PERSONAL USER MENU */}
+        {accountType === "personal" && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-primary text-xs font-semibold uppercase tracking-wider mt-4 mb-2">
+              User
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {userMenuItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild tooltip={item.title}>
+                      <NavLink
+                        to={item.url}
+                        end
+                        className={({ isActive }) =>
+                          isActive
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                            : "hover:bg-sidebar-accent/50"
+                        }
+                      >
+                        <item.icon className="h-5 w-5" />
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {/* BUSINESS USER MENU */}
+        {accountType === "business" && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-accent text-xs font-semibold uppercase tracking-wider mt-4 mb-2">
+              Business
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {businessMenuItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild tooltip={item.title}>
+                      <NavLink
+                        to={item.url}
+                        end
+                        className={({ isActive }) =>
+                          isActive
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                            : "hover:bg-sidebar-accent/50"
+                        }
+                      >
+                        <item.icon className="h-5 w-5" />
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
     </Sidebar>
   );
