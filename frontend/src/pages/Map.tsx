@@ -9,7 +9,7 @@ const Map = () => {
           View team locations and project sites
         </p>
       </div>
-      <GoogleMapView apiKey="AIzaSyAcbBNGK21W9-YTO4xTMLKhbDkvYVpwQ1k" />
+      <GoogleMapView apiKey={import.meta.env.VITE_GEMINI_API_KEY} />
     </div>
   );
 };
