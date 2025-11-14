@@ -8,6 +8,7 @@ import cookieParser from "cookie-parser"
 
 import registerRoutes from "./routes/register.route.js"
 import taskRoutes from "./routes/task.route.js"
+import jobRoutes from "./routes/jobs.route.js"
 
 import { connectDb } from "./lib/db.js";
 
@@ -28,7 +29,7 @@ app.use(cookieParser())
 // app.use("/api/chat",chatRoutes)
 app.use("/api/tasks",taskRoutes)
 app.use("/api/register",registerRoutes)
-// app.use("/api/jobs",jobRoutes)
+app.use("/api/jobs",jobRoutes)
 
 
 const server = http.createServer(app);

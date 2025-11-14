@@ -32,6 +32,11 @@ const taskSchema = new mongoose.Schema(
       enum: ["not completed", "pending", "completed"],
       default: "not completed",
     },
+    business: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Business",
+      required: true, // set to true if every task must belong to a business
+    },
   },
   { timestamps: true }
 );

@@ -1,9 +1,10 @@
 import Task from "../models/Task.js";
 
-
 export async function getTasks(req, res) {
   try {
-    const tasks = await Task.find()
+    const userId = req.user._id; // make sure your auth middleware sets req.user
+
+    const tasks = await Task.find({ assignedTo: userId }) // filter tasks where user is assigned
       .populate("team", "name members") // populate team name and members
       .sort({ dueDate: 1 }); // optional: sort by due date ascending
 

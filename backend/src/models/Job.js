@@ -20,7 +20,7 @@ const jobSchema = new mongoose.Schema(
 
     company: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Business",   // relation to Business schema
+      ref: "Business",
       required: true,
     },
 
@@ -41,11 +41,21 @@ const jobSchema = new mongoose.Schema(
       min: 1,
     },
 
+    // keep assignedTo
     assignedTo: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true,
+      }
+    ],
+
+    // NEW: jobApplicants
+    jobApplicants: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: false,
       }
     ],
   },
