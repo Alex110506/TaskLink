@@ -28,8 +28,7 @@ import { useAuthStore } from "./lib/utils";
 
 const queryClient = new QueryClient();
 const App = () => {
-
-  const { accountType } = useAuthStore(); 
+  const { accountType } = useAuthStore();
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -42,6 +41,11 @@ const App = () => {
             {/* Top-level pages */}
             <Route path="/landing" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+
+            {/* --- RUTA DE PROTECȚIE --- */}
+            {accountType === "" && (
+              <Route path="*" element={<Navigate to="/auth" replace />} />
+            )}
 
             {/* Dashboard layout */}
             <Route element={<DashboardLayout accountType={accountType} />}>

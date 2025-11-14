@@ -2,10 +2,11 @@
 import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
+import { AccountType } from "@/lib/utils";
 
 
 interface DashboardLayoutProps {
-  accountType: "personal" | "business";
+  accountType: AccountType
 }
 
 export function DashboardLayout({ accountType }: DashboardLayoutProps) {

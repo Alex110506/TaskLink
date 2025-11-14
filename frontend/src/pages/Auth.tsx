@@ -21,54 +21,95 @@ import {
 } from "@/components/ui/select";
 import authBg from "@/assets/auth-bg.jpg";
 import { useAuthStore } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 const Auth = () => {
+
+  const navigate=useNavigate()
+
   const { accountType, setAccountType } = useAuthStore();
 
   const [isLogin, setIsLogin] = useState(true);
 
-  // Common fields
+  // Common fields(login)
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
+  //signup
+
+  const [user, setUser] = useState({
+    email: "",
+    password: "",
+    fullName: "",
+    phoneNumber: "",
+    bio: "",
+    job: "",
+    yearsExperience: 0,
+    skills: "",
+    location: ""
+  });
+
+  const [business, setBusiness] = useState({
+    name: "",
+    field: "",
+    about: "",
+    email: "",
+    phone: "",
+    password: "",
+    location: ""
+  });
+
+
   // Signup fields
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [phone, setPhone] = useState("");
-  const [location, setLocation] = useState("");
-  const [workTitle, setWorkTitle] = useState("");
-  const [workExperience, setWorkExperience] = useState("");
-  const [skills, setSkills] = useState("");
+  // const [name, setName] = useState("");
+  // const [description, setDescription] = useState("");
+  // const [phone, setPhone] = useState("");
+  // const [location, setLocation] = useState("");
+  // const [workTitle, setWorkTitle] = useState("");
+  // const [workExperience, setWorkExperience] = useState("");
+  // const [skills, setSkills] = useState("");
 
   const resetForm = () => {
-    setEmail("");
-    setPassword("");
-    setName("");
-    setDescription("");
-    setPhone("");
-    setLocation("");
-    setWorkTitle("");
-    setWorkExperience("");
-    setSkills("");
+    setUser({
+      email: "",
+      password: "",
+      fullName: "",
+      phoneNumber: "",
+      bio: "",
+      job: "",
+      yearsExperience: 0,
+      skills: "",
+      location: ""
+    })
+    setBusiness({
+      name: "",
+      field: "",
+      about: "",
+      email: "",
+      phone: "",
+      password: "",
+      location: ""
+    })
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    if (!email || !password) {
+    if (accountType === "") {
       toast({
         title: "Error",
-        description: "Email and password are required",
+        description: "Select an account type",
         variant: "destructive",
       });
       setIsLoading(false);
       return;
     }
 
-    if (!isLogin && (!name || !description || !location)) {
+    //user validation signup
+    if (!isLogin && accountType === "personal" && (!user.email || !user.password || !user.fullName || !user.phoneNumber || !user.bio || !user.job || !user.yearsExperience || !user.skills.length || !user.location)) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -78,41 +119,193 @@ const Auth = () => {
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    //business validation signup
+    if (!isLogin && accountType === "business" && (!business.name || !business.field || !business.about || !business.email || !business.phone || !business.password || !business.location)) {
       toast({
         title: "Error",
-        description: "Please enter a valid email address",
+        description: "Please fill in all required fields",
         variant: "destructive",
       });
       setIsLoading(false);
       return;
     }
 
-    if (password.length < 8) {
-      toast({
-        title: "Error",
-        description: "Password must be at least 8 characters",
-        variant: "destructive",
-      });
-      setIsLoading(false);
-      return;
+    if (accountType === "personal") {
+      try {
+        const res = await fetch("http://localhost:5001/api/register/user/signup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(user) // assuming `user` is your state object
+        });
+
+        if (!res.ok) {
+          // Handle non-200 responses
+          const errorData = await res.json();
+          toast({
+            title: "Error",
+            description: errorData.message,
+            variant: "destructive",
+          });
+          setIsLoading(false)
+          return;
+        }
+
+        const data = await res.json();
+        console.log("Signup successful:", data);
+        setIsLoading(false)
+        navigate("/")
+      } catch (error) {
+        console.error("Network or server error:", error);
+        toast({
+          title: "Error",
+          description: error,
+          variant: "destructive",
+        });
+        setIsLoading(false)
+      }
+    } else {
+      try {
+        const res = await fetch("http://localhost:5001/api/register/business/signup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(business) // assuming `user` is your state object
+        });
+
+        if (!res.ok) {
+          // Handle non-200 responses
+          const errorData = await res.json();
+          toast({
+            title: "Error",
+            description: errorData.message,
+            variant: "destructive",
+          });
+          setIsLoading(false)
+          return;
+        }
+
+        const data = await res.json();
+        setIsLoading(false)
+        console.log("Signup successful:", data);
+        navigate("/")
+      } catch (error) {
+        console.error("Network or server error:", error);
+        toast({
+          title: "Error",
+          description: error,
+          variant: "destructive",
+        });
+        setIsLoading(false)
+      }
     }
 
-    setTimeout(() => {
-      toast({
-        title: isLogin ? "Welcome back!" : "Account created!",
-        description: isLogin
-          ? "You have successfully logged in."
-          : accountType === "business"
-          ? "Your business profile has been created successfully."
-          : "Your profile has been created successfully.",
-      });
 
-      setIsLoading(false);
-      resetForm();
-    }, 1500);
   };
+
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    if (accountType === "") {
+      toast({
+        title: "Error",
+        description: "Select an account type",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    //validation login
+    if (isLogin && (!password || !email)) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    if (accountType === "personal") {
+      try {
+        const res = await fetch("http://localhost:5001/api/register/user/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        if (!res.ok) {
+          // Handle non-200 responses
+          const errorData = await res.json();
+          toast({
+            title: "Error",
+            description: errorData.message,
+            variant: "destructive",
+          });
+          setIsLoading(false)
+          return;
+        }
+
+        const data = await res.json();
+        console.log("Login successful:", data);
+        setIsLoading(false)
+        navigate("/")
+      } catch (error) {
+        console.error("Network or server error:", error);
+        toast({
+          title: "Error",
+          description: error,
+          variant: "destructive",
+        });
+        setIsLoading(false)
+      }
+    } else {
+      try {
+        const res = await fetch("http://localhost:5001/api/register/business/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ email, password }) // assuming `user` is your state object
+        });
+
+        if (!res.ok) {
+          // Handle non-200 responses
+          const errorData = await res.json();
+          toast({
+            title: "Error",
+            description: errorData.message,
+            variant: "destructive",
+          });
+          setIsLoading(false)
+          return;
+        }
+
+        const data = await res.json();
+        setIsLoading(false)
+        console.log("Login successful:", data);
+        navigate("/")
+      } catch (error) {
+        console.error("Network or server error:", error);
+        toast({
+          title: "Error",
+          description: error,
+          variant: "destructive",
+        });
+        setIsLoading(false)
+      }
+    }
+
+
+  };
+
 
   return (
     <div
@@ -132,11 +325,10 @@ const Auth = () => {
               <button
                 type="button"
                 onClick={() => setAccountType("personal")}
-                className={`px-4 py-1 rounded-lg text-sm font-medium transition-all ${
-                  accountType === "personal"
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
+                className={`px-4 py-1 rounded-lg text-sm font-medium transition-all ${accountType === "personal"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+                  }`}
               >
                 Personal
               </button>
@@ -144,11 +336,10 @@ const Auth = () => {
               <button
                 type="button"
                 onClick={() => setAccountType("business")}
-                className={`px-4 py-1 rounded-lg text-sm font-medium transition-all ${
-                  accountType === "business"
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
+                className={`px-4 py-1 rounded-lg text-sm font-medium transition-all ${accountType === "business"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+                  }`}
               >
                 Business
               </button>
@@ -176,8 +367,8 @@ const Auth = () => {
             {isLogin
               ? "Welcome back"
               : accountType === "business"
-              ? "Join taskLink Business"
-              : "Join taskLink"}
+                ? "Join taskLink Business"
+                : "Join taskLink"}
           </CardTitle>
 
           {/* Dynamic Description */}
@@ -187,12 +378,12 @@ const Auth = () => {
                 ? "Sign in to manage business projects and collaborate with experts"
                 : "Sign in to connect with freelancers and manage your projects"
               : accountType === "business"
-              ? "Create your business profile and start hiring talent"
-              : "Create your professional profile and start connecting"}
+                ? "Create your business profile and start hiring talent"
+                : "Create your professional profile and start connecting"}
           </CardDescription>
         </CardHeader>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={!isLogin ? handleSignup : handleLogin}>
           <CardContent className="space-y-5">
             {/* SIGNUP FIELDS */}
             {!isLogin && (
@@ -221,8 +412,15 @@ const Auth = () => {
                             ? "Acme Corporation"
                             : "John Doe"
                         }
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        value={accountType === "personal" ? user.fullName : business.name}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (accountType === "personal") {
+                            setUser(prev => ({ ...prev, fullName: value }));
+                          } else {
+                            setBusiness(prev => ({ ...prev, name: value }));
+                          }
+                        }}
                         required={!isLogin}
                         className="transition-all duration-300 focus:shadow-[0_0_0_3px_hsl(var(--primary)/0.1)]"
                       />
@@ -242,8 +440,15 @@ const Auth = () => {
                             ? "Tell us about your business, your services, and your goals..."
                             : "Tell us about yourself, your expertise, and what you're looking for..."
                         }
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
+                        value={accountType === "personal" ? user.bio : business.about}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (accountType === "personal") {
+                            setUser(prev => ({ ...prev, bio: value }));
+                          } else {
+                            setBusiness(prev => ({ ...prev, about: value }));
+                          }
+                        }}
                         required={!isLogin}
                         rows={3}
                         className="transition-all duration-300 focus:shadow-[0_0_0_3px_hsl(var(--primary)/0.1)] resize-none"
@@ -264,8 +469,15 @@ const Auth = () => {
                         id="phone"
                         type="tel"
                         placeholder="+1 (555) 123-4567"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
+                        value={accountType === "personal" ? user.phoneNumber : business.phone}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (accountType === "personal") {
+                            setUser(prev => ({ ...prev, phoneNumber: value }));
+                          } else {
+                            setBusiness(prev => ({ ...prev, phone: value }));
+                          }
+                        }}
                         className="transition-all duration-300 focus:shadow-[0_0_0_3px_hsl(var(--primary)/0.1)]"
                       />
                     </div>
@@ -280,8 +492,15 @@ const Auth = () => {
                             ? "New York, USA"
                             : "New York, USA"
                         }
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
+                        value={accountType === "personal" ? user.location : business.location}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (accountType === "personal") {
+                            setUser(prev => ({ ...prev, location: value }));
+                          } else {
+                            setBusiness(prev => ({ ...prev, location: value }));
+                          }
+                        }}
                         required={!isLogin}
                         className="transition-all duration-300 focus:shadow-[0_0_0_3px_hsl(var(--primary)/0.1)]"
                       />
@@ -302,8 +521,8 @@ const Auth = () => {
                           id="workTitle"
                           type="text"
                           placeholder="e.g., Senior Full-Stack Developer"
-                          value={workTitle}
-                          onChange={(e) => setWorkTitle(e.target.value)}
+                          value={user.job}
+                          onChange={(e) => setUser(prev => ({ ...prev, job: e.target.value }))}
                           className="transition-all duration-300 focus:shadow-[0_0_0_3px_hsl(var(--primary)/0.1)]"
                         />
                       </div>
@@ -312,21 +531,14 @@ const Auth = () => {
                         <Label htmlFor="workExperience">
                           Years of Experience
                         </Label>
-                        <Select
-                          value={workExperience}
-                          onValueChange={setWorkExperience}
-                        >
-                          <SelectTrigger className="transition-all duration-300 focus:shadow-[0_0_0_3px_hsl(var(--primary)/0.1)]">
-                            <SelectValue placeholder="Select experience level" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="0-1">0-1 years</SelectItem>
-                            <SelectItem value="1-3">1-3 years</SelectItem>
-                            <SelectItem value="3-5">3-5 years</SelectItem>
-                            <SelectItem value="5-10">5-10 years</SelectItem>
-                            <SelectItem value="10+">10+ years</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <Input
+                          id="workTitle"
+                          type="number"
+                          placeholder="1 years"
+                          value={user.yearsExperience}
+                          onChange={(e) => setUser(prev => ({ ...prev, yearsExperience: Number(e.target.value) }))}
+                          className="transition-all duration-300 focus:shadow-[0_0_0_3px_hsl(var(--primary)/0.1)]"
+                        />
                       </div>
 
                       <div className="space-y-2">
@@ -334,8 +546,13 @@ const Auth = () => {
                         <Textarea
                           id="skills"
                           placeholder="e.g., React, Node.js, TypeScript, Project Management..."
-                          value={skills}
-                          onChange={(e) => setSkills(e.target.value)}
+                          value={user.skills}
+                          onChange={(e) =>
+                            setUser(prev => ({
+                              ...prev,
+                              skills: e.target.value
+                            }))
+                          }
                           rows={2}
                           className="transition-all duration-300 focus:shadow-[0_0_0_3px_hsl(var(--primary)/0.1)] resize-none"
                         />
@@ -368,8 +585,23 @@ const Auth = () => {
                       ? "you@example.com"
                       : "business@example.com"
                   }
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={!isLogin ? (
+                    accountType === "personal" ? user.email : business.email
+                  ) : (
+                    email
+                  )}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (!isLogin) {
+                      if (accountType === "personal") {
+                        setUser(prev => ({ ...prev, email: value }));
+                      } else {
+                        setBusiness(prev => ({ ...prev, email: value }));
+                      }
+                    } else {
+                      setEmail(value);
+                    }
+                  }}
                   required
                   className="transition-all duration-300 focus:shadow-[0_0_0_3px_hsl(var(--primary)/0.1)]"
                 />
@@ -381,8 +613,23 @@ const Auth = () => {
                   id="password"
                   type="password"
                   placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={!isLogin ? (
+                    accountType === "personal" ? user.password : business.password
+                  ) : (
+                    password
+                  )}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (!isLogin) {
+                      if (accountType === "personal") {
+                        setUser(prev => ({ ...prev, password: value }));
+                      } else {
+                        setBusiness(prev => ({ ...prev, password: value }));
+                      }
+                    } else {
+                      setPassword(value);
+                    }
+                  }}
                   required
                   className="transition-all duration-300 focus:shadow-[0_0_0_3px_hsl(var(--primary)/0.1)]"
                 />
@@ -418,8 +665,8 @@ const Auth = () => {
                   {isLogin
                     ? "Signing in..."
                     : accountType === "business"
-                    ? "Creating business account..."
-                    : "Creating account..."}
+                      ? "Creating business account..."
+                      : "Creating account..."}
                 </div>
               ) : isLogin ? (
                 "Sign in"

@@ -22,6 +22,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { AccountType } from "@/lib/utils";
 
 // --------------------------
 // HARDCODED TOGGLE
@@ -29,7 +30,7 @@ import {
 // trb legat la login cel mai prob un const din app
 // --------------------------
 interface SidebarLayoutProps {
-  accountType: "personal" | "business";
+  accountType: AccountType
 }
 
 const userMenuItems = [

@@ -22,9 +22,7 @@ const ai = new GoogleGenAI(process.env.GEMINI_API_KEY);
 const __dirname=path.resolve()
 
 app.use(cors({
-  origin: process.env.NODE_ENV === "production" 
-    ? true // allow same-origin in production
-    : "http://localhost:5173",
+  origin: "*",
   credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));

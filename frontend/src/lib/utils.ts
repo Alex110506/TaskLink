@@ -9,7 +9,7 @@ export function cn(...inputs: ClassValue[]) {
 
 
 // Definim tipul pentru starea noastră
-type AccountType = 'personal' | 'business';
+export type AccountType = 'personal' | 'business' | '';
 
 interface AuthState {
   accountType: AccountType;
@@ -21,7 +21,7 @@ export const useAuthStore = create(
   persist<AuthState>(
     (set) => ({
       // Starea inițială
-      accountType: 'personal',
+      accountType: "",
 
       // Acțiune pentru a schimba tipul contului (folosită în formularul Auth)
       setAccountType: (type) => set({ accountType: type }),
