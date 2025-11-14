@@ -10,6 +10,7 @@ import cookieParser from "cookie-parser"
 // import userRoutes from "./routes/user.route.js"
 // import chatRoutes from "./routes/chat.route.js"
 // import DocumentModel from "./models/Document.js";
+import registerRoutes from "./routes/register.route.js"
 
 import { connectDb } from "./lib/db.js";
 
@@ -29,7 +30,7 @@ app.use(cookieParser())
 
 // app.use("/api/chat",chatRoutes)
 // app.use("/api/tasks",taskRoutes)
-// app.use("/api/register",registerRoutes)
+app.use("/api/register",registerRoutes)
 // app.use("/api/jobs",jobRoutes)
 
 

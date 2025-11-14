@@ -1,5 +1,5 @@
 import express from 'express';
-import { signup,login,logout,update } from '../controllers/auth.controller.js';
+import { signup,login,logout,getUserProfile, updateUser } from '../controllers/auth.controller.js';
 import { protectedRoute } from '../middleware/auth.middleware.js';
 
 const router=express.Router();
@@ -7,8 +7,8 @@ const router=express.Router();
 router.post("/user/signup",signup)
 router.post("/user/login",login)
 router.get("/user/logout",logout)
-router.patch("/user/update/:id",logout)
-router.get("/user/profileInfo/:id",logout)
+router.patch("/user/update/:id",updateUser)
+router.get("/user/profileInfo/:id",getUserProfile)
 
 router.post("/business/signup",signup)
 router.post("/business/login",login)
