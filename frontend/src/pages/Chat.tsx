@@ -87,7 +87,7 @@ export default function Chat() {
             </Avatar>
             {/* 3. FIX: Simplified title. `businessMail` is always the other person,
                 based on your navigation logic from profilecard.tsx */}
-            <CardTitle className="text-lg">Chat with {businessMail}</CardTitle>
+            <CardTitle className="text-lg">Chat with {accountType==="business" ? userMail :businessMail}</CardTitle>
           </div>
         </CardHeader>
 
