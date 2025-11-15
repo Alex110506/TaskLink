@@ -7,6 +7,7 @@ import { Briefcase } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthStore } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 const PostJobOffer = () => {
   const { toast } = useToast();
@@ -21,6 +22,9 @@ const PostJobOffer = () => {
   const [positions, setPositions] = useState(1);
   const [location, setLocation] = useState("");
   const [employmentType, setEmploymentType] = useState("Remote");
+
+    const navigate = useNavigate();
+  
 
   // --- SIMPLE FETCH POST ---
   const handlePost = async () => {
@@ -58,6 +62,8 @@ const PostJobOffer = () => {
         title: "Job Posted Successfully!",
         description: "Your job offer is now live.",
       });
+      navigate("/")
+
     } catch (err) {
       toast({
         title: "Network Error",

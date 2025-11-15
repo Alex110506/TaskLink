@@ -1,5 +1,6 @@
 import { ProfileCard } from "@/components/ProfileCard";
 import { TeamCard } from "@/components/TeamCard";
+import { useEffect, useState } from "react";
 
 const Team = () => {
   const profiles = [
@@ -11,26 +12,60 @@ const Team = () => {
     { name: "Netflix" as const },
   ];
 
-  const teams = [
-    {
-      name: "Product Development",
-      description: "Building the core platform features and functionality",
-      memberCount: 8,
-      members: ["Sarah Johnson", "Michael Chen", "Emily Rodriguez", "James Williams", "Lisa Anderson"],
-    },
-    {
-      name: "Marketing Team",
-      description: "Brand strategy, content creation, and user acquisition",
-      memberCount: 5,
-      members: ["David Park", "Sarah Johnson", "Emily Rodriguez"],
-    },
-    {
-      name: "Customer Success",
-      description: "Supporting users and ensuring product satisfaction",
-      memberCount: 6,
-      members: ["Lisa Anderson", "James Williams", "Michael Chen"],
-    },
-  ];
+  const [teams, setTeams] = useState([])
+
+  // const teams = [
+  //   {
+  //     name: "Product Development",
+  //     description: "Building the core platform features and functionality",
+  //     memberCount: 8,
+  //     members: ["Sarah Johnson", "Michael Chen", "Emily Rodriguez", "James Williams", "Lisa Anderson"],
+  //   },
+  //   {
+  //     name: "Marketing Team",
+  //     description: "Brand strategy, content creation, and user acquisition",
+  //     memberCount: 5,
+  //     members: ["David Park", "Sarah Johnson", "Emily Rodriguez"],
+  //   },
+  //   {
+  //     name: "Customer Success",
+  //     description: "Supporting users and ensuring product satisfaction",
+  //     memberCount: 6,
+  //     members: ["Lisa Anderson", "James Williams", "Michael Chen"],
+  //   },
+  // ];
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const getTeams = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch("http://localhost:5001/api/tasks/user/getTeams", {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch teams");
+        }
+
+        const data = await res.json();
+        setTeams(data.teams || []);
+
+      } catch (err: any) {
+        console.error("Error fetching teams:", err);
+        setError(err.message || "Something went wrong");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getTeams();
+  }, []);
+
+  console.log(teams);
 
   return (
     <div className="space-y-8">
@@ -53,7 +88,11 @@ const Team = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {teams.map((team, index) => (
-            <TeamCard key={index} {...team} />
+            <TeamCard key={index} 
+              jobName={team.jobName} 
+              memberCount={team.users.length}
+              members={team.users}
+            />
           ))}
         </div>
       </section>

@@ -1,4 +1,10 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,8 +13,11 @@ import { PlusSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { Task } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 const CreateTask = () => {
+  const navigate = useNavigate();
+
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -23,16 +32,19 @@ const CreateTask = () => {
     business: "",
   });
 
-  const [users, setUsers] = useState<any[]>([]); // state to store users
+  const [users, setUsers] = useState([]); // state to store users
 
   useEffect(() => {
     const getUsers = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch("http://localhost:5001/api/tasks/business/getUsers", {
-          method: "GET",
-          credentials: "include",
-        });
+        const res = await fetch(
+          "http://localhost:5001/api/tasks/business/getUsers",
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
 
         if (!res.ok) {
           console.error("Failed to fetch users");
@@ -53,29 +65,34 @@ const CreateTask = () => {
     getUsers(); // don't forget to call the async function
   }, []);
 
-
   // Example team options
   const teams = ["Alice", "Bob", "Charlie", "David", "Eve"];
 
   // Handle input changes
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { id, value, options } = e.target as HTMLSelectElement;
 
     if (id === "assignedTo") {
       const selected = Array.from(options)
-        .filter(option => option.selected)
-        .map(option => option.value);
-      setNewTask(prev => ({ ...prev, assignedTo: selected }));
+        .filter((option) => option.selected)
+        .map((option) => option.value);
+      setNewTask((prev) => ({ ...prev, assignedTo: selected }));
     } else {
-      setNewTask(prev => ({ ...prev, [id]: value }));
+      setNewTask((prev) => ({ ...prev, [id]: value }));
     }
   };
 
-
   const handleCreate = async () => {
-    if (!newTask.name || !newTask.importance || !newTask.description || !newTask.assignedTo) {
+    if (
+      !newTask.name ||
+      !newTask.importance ||
+      !newTask.description ||
+      !newTask.assignedTo
+    ) {
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields.",
@@ -87,14 +104,17 @@ const CreateTask = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5001/api/tasks/business/createTask", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(newTask),
-      });
+      const res = await fetch(
+        "http://localhost:5001/api/tasks/business/createTask",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify(newTask),
+        }
+      );
 
       const data = await res.json();
 
@@ -113,8 +133,18 @@ const CreateTask = () => {
         description: `Task "${data.task.name}" created successfully.`,
       });
 
+      navigate("/");
+
       // Reset form
-      setNewTask({ name: "", importance: "high", description: "", assignedTo: [], dueDate: "", status: "not completed", business: "" });
+      setNewTask({
+        name: "",
+        importance: "high",
+        description: "",
+        assignedTo: [],
+        dueDate: "",
+        status: "not completed",
+        business: "",
+      });
       setIsLoading(false);
     } catch (error) {
       console.error("Error creating task:", error);
@@ -138,7 +168,9 @@ const CreateTask = () => {
         <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-blue-500 to-accent bg-clip-text text-transparent">
           Create Task
         </h1>
-        <p className="text-muted-foreground mt-1">Assign a new task to your team</p>
+        <p className="text-muted-foreground mt-1">
+          Assign a new task to your team
+        </p>
       </div>
 
       <form>
@@ -148,7 +180,9 @@ const CreateTask = () => {
               <PlusSquare className="h-5 w-5 text-primary" />
               Task Details
             </CardTitle>
-            <CardDescription>Provide information about the task</CardDescription>
+            <CardDescription>
+              Provide information about the task
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Task Name */}
@@ -157,7 +191,9 @@ const CreateTask = () => {
               <Input
                 id="title"
                 value={newTask.name}
-                onChange={(e) => setNewTask((prev) => ({ ...prev, name: e.target.value }))}
+                onChange={(e) =>
+                  setNewTask((prev) => ({ ...prev, name: e.target.value }))
+                }
                 placeholder="e.g., Implement User Authentication"
                 required
                 className="bg-background/50 border-border/50 focus:border-primary"
@@ -202,19 +238,21 @@ const CreateTask = () => {
                 id="assignedTo"
                 value={newTask.assignedTo[0] || ""}
                 onChange={(e) =>
-                  setNewTask(prev => ({ ...prev, assignedTo: [e.target.value] }))
+                  setNewTask((prev) => ({
+                    ...prev,
+                    assignedTo: [e.target.value],
+                  }))
                 }
                 required
                 className="w-full h-10 px-3 rounded-md border border-border/50 bg-background/50 focus:border-primary focus:outline-none"
               >
                 <option value="">Select a user</option>
-                {users.map(user => (
+                {users.map((user) => (
                   <option key={user._id} value={user._id}>
                     {user.fullName}
                   </option>
                 ))}
               </select>
-
             </div>
 
             {/* Due Date */}
@@ -223,7 +261,11 @@ const CreateTask = () => {
               <Input
                 id="dueDate"
                 type="date"
-                value={newTask.dueDate ? new Date(newTask.dueDate).toISOString().split("T")[0] : ""}
+                value={
+                  newTask.dueDate
+                    ? new Date(newTask.dueDate).toISOString().split("T")[0]
+                    : ""
+                }
                 onChange={handleChange}
               />
             </div>

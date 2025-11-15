@@ -31,69 +31,6 @@ const BusinessHome = () => {
     jobApplicants: [],      // array of user IDs
   }]);
 
-  // const jobPostings = [
-  //   {
-  //     id: 1,
-  //     title: "Senior Frontend Developer",
-  //     department: "Engineering",
-  //     posted: "2 days ago",
-  //     applicants: 24,
-  //     status: "Active",
-  //     skills: ["React", "TypeScript", "Tailwind CSS"],
-  //     positions: 2,
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "Product Manager",
-  //     department: "Product",
-  //     posted: "1 week ago",
-  //     applicants: 18,
-  //     status: "Active",
-  //     skills: ["Agile", "User Research", "Analytics"],
-  //     positions: 1,
-  //   },
-  //   {
-  //     id: 3,
-  //     title: "UX Designer",
-  //     department: "Design",
-  //     posted: "3 days ago",
-  //     applicants: 31,
-  //     status: "Active",
-  //     skills: ["Figma", "User Testing", "Prototyping"],
-  //     positions: 1,
-  //   },
-  // ];
-
-  // const candidates = [
-  //   {
-  //     name: "Alice Johnson",
-  //     role: "Frontend Developer",
-  //     location: "San Francisco, CA",
-  //     skills: ["React", "TypeScript", "Node.js", "GraphQL"],
-  //     experience: "5 years",
-  //     matchScore: 95,
-  //     description: "Passionate frontend developer with extensive experience in building scalable React applications. Led multiple projects from conception to deployment.",
-  //   },
-  //   {
-  //     name: "Bob Smith",
-  //     role: "Full Stack Developer",
-  //     location: "New York, NY",
-  //     skills: ["React", "Python", "PostgreSQL", "AWS"],
-  //     experience: "7 years",
-  //     matchScore: 88,
-  //     description: "Full stack engineer specializing in web technologies. Strong background in both frontend and backend development with cloud infrastructure expertise.",
-  //   },
-  //   {
-  //     name: "Carol Williams",
-  //     role: "Senior Frontend Engineer",
-  //     location: "Austin, TX",
-  //     skills: ["React", "TypeScript", "Redux", "Testing"],
-  //     experience: "6 years",
-  //     matchScore: 92,
-  //     description: "Senior engineer with a focus on creating performant and accessible user interfaces. Advocate for best practices and clean code.",
-  //   },
-  // ];
-
 
   function splitSmart(str?: string) {
     if (!str) return []; // return empty array if str is undefined or empty

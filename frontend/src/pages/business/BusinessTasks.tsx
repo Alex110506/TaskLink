@@ -12,38 +12,95 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEffect, useState } from "react";
 import { Task } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useNavigate } from "react-router-dom";
 
 const BusinessTasks = () => {
+  const navigate = useNavigate();
+
   const [allTasks, setAllTasks] = useState<Task[]>([]);
   const { toast } = useToast();
 
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const res = await fetch("http://localhost:5001/api/tasks/business/getTasks", {
+  const fetchTasks = async () => {
+    try {
+      const res = await fetch(
+        "http://localhost:5001/api/tasks/business/getTasks",
+        {
           method: "GET",
           credentials: "include",
-        });
-        const data = await res.json();
-
-        if (!res.ok) {
-          toast({
-            title: "Error",
-            description: data.message || "Failed to fetch business's tasks",
-            variant: "destructive",
-          });
-          console.error("Failed to fetch tasks:", data.message);
-          return;
         }
+      );
+      const data = await res.json();
 
-        setAllTasks(data.tasks); // data.tasks must match your Task[] structure
-      } catch (error) {
-        console.error("Error fetching tasks:", error);
+      if (!res.ok) {
+        toast({
+          title: "Error",
+          description: data.message || "Failed to fetch business's tasks",
+          variant: "destructive",
+        });
+        console.error("Failed to fetch tasks:", data.message);
+        return;
       }
-    };
 
+      setAllTasks(data.tasks); // data.tasks must match your Task[] structure
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    }
+  };
+
+  useEffect(() => {
     fetchTasks();
   }, []);
+
+  const updateTaskStatus = async (taskId: string, newStatus: string) => {
+    try {
+      const res = await fetch(
+        `http://localhost:5001/api/tasks/business/updateTask/${taskId}`,
+        {
+          method: "PATCH",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            status: newStatus,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast({
+          title: "Error",
+          description: data.message || "Failed to update task status",
+          variant: "destructive",
+        });
+        console.error("Update error:", data.message);
+        return;
+      }
+
+      toast({
+        title: "Status Updated",
+        description: "The task status has been updated successfully.",
+      });
+
+      // refresh tasks after update
+      fetchTasks();
+    } catch (err) {
+      console.error("Error updating task:", err);
+      toast({
+        title: "Error",
+        description: "Something went wrong while updating the task.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const getImportanceBadge = (importance: string) => {
     const colors = {
@@ -109,13 +166,35 @@ const BusinessTasks = () => {
 
           {/* Actions */}
           <div className="flex gap-2 pt-2">
-            <Button
-              size="sm"
-              variant="outline"
-              className="flex-1 border-border/50"
-            >
-              Update Status
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1 border-border/50"
+                >
+                  Update Status
+                </Button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent className="w-40">
+                <DropdownMenuItem
+                  onClick={() => updateTaskStatus(task._id, "pending")}
+                >
+                  Pending
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => updateTaskStatus(task._id, "not completed")}
+                >
+                  In Progress
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => updateTaskStatus(task._id, "completed")}
+                >
+                  Completed
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </CardContent>
@@ -133,7 +212,10 @@ const BusinessTasks = () => {
             Monitor and manage all team tasks
           </p>
         </div>
-        <Button className="bg-gradient-to-r from-primary via-blue-600 to-accent hover:opacity-90 shadow-lg shadow-primary/30">
+        <Button
+          onClick={() => navigate("/business/create-task")}
+          className="bg-gradient-to-r from-primary via-blue-600 to-accent hover:opacity-90 shadow-lg shadow-primary/30"
+        >
           <CheckSquare className="h-5 w-5 mr-2" />
           Create New Task
         </Button>

@@ -5,17 +5,16 @@ import { Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface TeamCardProps {
-  name: string;
-  description: string;
+  jobName: string;
   memberCount: number;
   members: string[];
 }
 
-export function TeamCard({ name, description, memberCount, members }: TeamCardProps) {
+export function TeamCard({ jobName, memberCount, members }: TeamCardProps) {
   const navigate = useNavigate();
 
   const handleViewTeam = () => {
-    const teamId = name.toLowerCase().replace(/\s+/g, "-");
+    const teamId = jobName.toLowerCase().replace(/\s+/g, "-");
     navigate(`/chat/team/${teamId}`);
   };
 
@@ -27,8 +26,7 @@ export function TeamCard({ name, description, memberCount, members }: TeamCardPr
             <Users className="h-6 w-6 text-accent" />
           </div>
           <div className="flex-1">
-            <CardTitle className="text-lg">{name}</CardTitle>
-            <CardDescription className="mt-1">{description}</CardDescription>
+            <CardTitle className="text-lg">{jobName} Team</CardTitle>
           </div>
         </div>
       </CardHeader>
