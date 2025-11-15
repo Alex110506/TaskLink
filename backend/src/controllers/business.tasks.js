@@ -111,3 +111,30 @@ export async function getAssignedUsersByBusiness(req, res) {
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 }
+
+
+export async function getTeamsForBusiness(req, res) {
+  try {
+    const businessId = req.user?._id;
+    if (!businessId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    // Find all jobs that belong to this business
+    const jobs = await Job.find({ company: businessId })
+      .populate("assignedTo", "fullName email") // populate users
+      .lean();
+
+    // Map each job to a "team" structure
+    const teams = jobs.map((job) => ({
+      jobId: job._id,
+      jobName: job.name,
+      users: job.assignedTo, // populated users
+    }));
+
+    res.status(200).json({ success: true, teams });
+  } catch (err) {
+    console.error("getTeamsForBusiness error:", err);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+}

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Users, Eye, MessageSquare } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +13,25 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
+interface Member {
+  _id: string;
+  fullName: string;
+  email: string;
+  role?: string;
+}
+
+interface Team {
+  jobId: string;
+  jobName: string;
+  users: Member[];
+}
+
 const BusinessChat = () => {
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+
   const employees = [
     { name: "Alice Johnson", role: "Frontend Developer", status: "online", unread: 2 },
     { name: "Bob Smith", role: "Backend Developer", status: "away", unread: 0 },
@@ -21,53 +39,31 @@ const BusinessChat = () => {
     { name: "David Brown", role: "UI/UX Designer", status: "offline", unread: 0 },
   ];
 
-  const teams = [
-    {
-      name: "Backend Engineers",
-      members: 8,
-      lead: "Bob Smith",
-      description: "Server-side development and API design",
-      membersList: [
-        { name: "Bob Smith", role: "Senior Backend Engineer", experience: "7 years" },
-        { name: "Emma Davis", role: "Backend Engineer", experience: "4 years" },
-        { name: "Frank Wilson", role: "Backend Engineer", experience: "3 years" },
-        { name: "Grace Lee", role: "Junior Backend Engineer", experience: "1 year" },
-      ]
-    },
-    {
-      name: "Frontend Engineers",
-      members: 6,
-      lead: "Alice Johnson",
-      description: "User interface and client-side development",
-      membersList: [
-        { name: "Alice Johnson", role: "Senior Frontend Engineer", experience: "5 years" },
-        { name: "Henry Martinez", role: "Frontend Engineer", experience: "3 years" },
-        { name: "Iris Taylor", role: "Frontend Engineer", experience: "2 years" },
-      ]
-    },
-    {
-      name: "Product Team",
-      members: 5,
-      lead: "Carol Williams",
-      description: "Product strategy and management",
-      membersList: [
-        { name: "Carol Williams", role: "Product Manager", experience: "6 years" },
-        { name: "Jack Anderson", role: "Product Designer", experience: "4 years" },
-        { name: "Kate Thompson", role: "Product Analyst", experience: "2 years" },
-      ]
-    },
-    {
-      name: "Design Team",
-      members: 4,
-      lead: "David Brown",
-      description: "Visual design and user experience",
-      membersList: [
-        { name: "David Brown", role: "Lead Designer", experience: "8 years" },
-        { name: "Laura Garcia", role: "UI Designer", experience: "3 years" },
-        { name: "Mike Robinson", role: "UX Researcher", experience: "4 years" },
-      ]
-    },
-  ];
+  useEffect(() => {
+    const getTeams = async () => {
+      try {
+        const res = await fetch("http://localhost:5001/api/tasks/business/getTeams", {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch teams");
+
+        const data = await res.json();
+        setTeams(data.teams || []);
+      } catch (err: any) {
+        console.error("Error fetching teams:", err);
+        setError(err.message || "Something went wrong");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getTeams();
+  }, []);
+
+  if (loading) return <p>Loading teams...</p>;
+  if (error) return <p>Error: {error}</p>;
 
   return (
     <div className="space-y-6">
@@ -79,7 +75,7 @@ const BusinessChat = () => {
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
-        {/* Employees Chat */}
+
         <Card className="border-border/50 bg-gradient-to-br from-card/80 to-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -90,19 +86,26 @@ const BusinessChat = () => {
           </CardHeader>
           <CardContent className="space-y-3">
             {employees.map((employee, index) => (
-              <Card key={index} className="border-border/50 hover:border-primary/50 transition-all cursor-pointer bg-gradient-to-r from-blue-900/5 to-transparent">
+              <Card
+                key={index}
+                className="border-border/50 hover:border-primary/50 transition-all cursor-pointer bg-gradient-to-r from-blue-900/5 to-transparent"
+              >
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="relative">
                       <Avatar className="h-12 w-12">
                         <AvatarFallback className="bg-gradient-to-br from-primary to-blue-600 text-primary-foreground">
-                          {employee.name.split(' ').map(n => n[0]).join('')}
+                          {employee.name.split(" ").map((n) => n[0]).join("")}
                         </AvatarFallback>
                       </Avatar>
-                      <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-card ${
-                        employee.status === 'online' ? 'bg-green-500' :
-                        employee.status === 'away' ? 'bg-yellow-500' : 'bg-gray-500'
-                      }`} />
+                      <div
+                        className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-card ${employee.status === "online"
+                            ? "bg-green-500"
+                            : employee.status === "away"
+                              ? "bg-yellow-500"
+                              : "bg-gray-500"
+                          }`}
+                      />
                     </div>
                     <div className="flex-1">
                       <div className="font-semibold">{employee.name}</div>
@@ -127,30 +130,36 @@ const BusinessChat = () => {
               <Users className="h-5 w-5 text-accent" />
               Teams
             </CardTitle>
-            <CardDescription>Organized by department and function</CardDescription>
+            <CardDescription>Organized by job teams</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {teams.map((team, index) => (
-              <Card key={index} className="border-border/50 hover:border-accent/50 transition-all bg-gradient-to-r from-accent/5 to-transparent">
+              <Card
+                key={index}
+                className="border-border/50 hover:border-accent/50 transition-all bg-gradient-to-r from-accent/5 to-transparent"
+              >
                 <CardContent className="p-4">
                   <div className="space-y-3">
                     <div className="flex items-start justify-between">
                       <div>
-                        <div className="font-semibold text-lg">{team.name}</div>
-                        <div className="text-sm text-muted-foreground">{team.description}</div>
+                        <div className="font-semibold text-lg">{team.jobName} Team</div>
+                        <div className="text-sm text-muted-foreground">
+                          {team.users.length} members
+                        </div>
                       </div>
-                      <Badge variant="secondary" className="bg-accent/10 text-accent border-accent/20">
-                        {team.members} members
+                      <Badge
+                        variant="secondary"
+                        className="bg-accent/10 text-accent border-accent/20"
+                      >
+                        {team.users.length} members
                       </Badge>
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      Lead: <span className="text-foreground font-medium">{team.lead}</span>
-                    </div>
+
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
+                        <Button
+                          variant="outline"
+                          size="sm"
                           className="w-full border-accent/30 hover:bg-accent/10"
                         >
                           <Eye className="h-4 w-4 mr-2" />
@@ -159,25 +168,31 @@ const BusinessChat = () => {
                       </DialogTrigger>
                       <DialogContent className="max-w-2xl">
                         <DialogHeader>
-                          <DialogTitle>{team.name}</DialogTitle>
+                          <DialogTitle>{team.jobName}</DialogTitle>
                           <DialogDescription>
-                            {team.description} • {team.members} members
+                            {team.users.length} members
                           </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4 mt-4">
-                          {team.membersList.map((member, memberIndex) => (
-                            <Card key={memberIndex} className="border-border/50 hover:border-primary/50 transition-all">
+                          {team.users.map((member, memberIndex) => (
+                            <Card
+                              key={memberIndex}
+                              className="border-border/50 hover:border-primary/50 transition-all"
+                            >
                               <CardContent className="p-4">
                                 <div className="flex items-center gap-4">
                                   <Avatar className="h-14 w-14">
                                     <AvatarFallback className="bg-gradient-to-br from-accent to-primary-light text-primary-foreground">
-                                      {member.name.split(' ').map(n => n[0]).join('')}
+                                      {member.fullName
+                                        .split(" ")
+                                        .map((n) => n[0])
+                                        .join("")}
                                     </AvatarFallback>
                                   </Avatar>
                                   <div className="flex-1">
-                                    <div className="font-semibold text-lg">{member.name}</div>
-                                    <div className="text-sm text-muted-foreground">{member.role}</div>
-                                    <div className="text-xs text-muted-foreground mt-1">{member.experience} experience</div>
+                                    <div className="font-semibold text-lg">{member.fullName}</div>
+                                    <div className="text-sm text-muted-foreground">{member.role || "Employee"}</div>
+                                    <div className="text-xs text-muted-foreground mt-1">{member.email}</div>
                                   </div>
                                   <div className="flex gap-2">
                                     <Button size="sm" variant="outline" className="border-primary/30">
