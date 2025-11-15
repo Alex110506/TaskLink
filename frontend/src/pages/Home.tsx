@@ -2,26 +2,30 @@ import { TaskCard } from "@/components/TaskCard";
 import { JobCard } from "@/components/JobCard";
 import { useEffect } from "react";
 import { useState } from "react";
-import { Task } from "@/lib/utils";
+import { Task, useAuthStore } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { AIAssistant } from "@/components/AIAssistant";
 
 const Home = () => {
-  const [jobs, setJobs] = useState([{
-    _id: "",
-    name: "",
-    description: "",
-    skills: "",
-    company: "",            // store Business _id
-    location: "",
-    employmentType: "",     // "remote", "on-site", "hybrid"
-    numberOfPositions: 1,
-    assignedTo: [],         // array of user IDs
-    jobApplicants: [],      // array of user IDs
-  }]);
+  const [jobs, setJobs] = useState([
+    {
+      _id: "",
+      name: "",
+      description: "",
+      skills: "",
+      company: "", // store Business _id
+      location: "",
+      employmentType: "", // "remote", "on-site", "hybrid"
+      numberOfPositions: 1,
+      assignedTo: [], // array of user IDs
+      jobApplicants: [], // array of user IDs
+    },
+  ]);
 
   const [allTasks, setAllTasks] = useState<Task[]>([]);
   const { toast } = useToast();
 
+  const {user}=useAuthStore()
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -51,8 +55,6 @@ const Home = () => {
       }
     };
 
-    
-
     fetchTasks();
   }, []);
 
@@ -60,11 +62,11 @@ const Home = () => {
     const fetchJobs = async () => {
       try {
         const res = await fetch("http://localhost:5001/api/jobs/user/getJobs", {
-          credentials: "include"
+          credentials: "include",
         });
         const data = await res.json();
         console.log(data);
-        setJobs(data.jobs)
+        setJobs(data.jobs);
       } catch (error) {
         console.error(error);
       }
@@ -78,7 +80,9 @@ const Home = () => {
       <section>
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-foreground mb-2">My Tasks</h2>
-          <p className="text-muted-foreground">Track your daily tasks and priorities</p>
+          <p className="text-muted-foreground">
+            Track your daily tasks and priorities
+          </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {allTasks.map((task, index) => (
@@ -89,8 +93,12 @@ const Home = () => {
 
       <section>
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-foreground mb-2">Job Applications</h2>
-          <p className="text-muted-foreground">Current opportunities and applications</p>
+          <h2 className="text-2xl font-bold text-foreground mb-2">
+            Job Applications
+          </h2>
+          <p className="text-muted-foreground">
+            Current opportunities and applications
+          </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {jobs.map((job, index) => (
@@ -101,7 +109,7 @@ const Home = () => {
               description={job.description}
               skills={job.skills}
               //@ts-ignore
-              company={job.company?.name}  // flatten the company
+              company={job.company?.name} // flatten the company
               location={job.location}
               employmentType={job.employmentType}
               numberOfPositions={job.numberOfPositions}
@@ -111,6 +119,8 @@ const Home = () => {
           ))}
         </div>
       </section>
+
+      <AIAssistant jobsData={jobs} userData={user}/>
     </div>
   );
 };

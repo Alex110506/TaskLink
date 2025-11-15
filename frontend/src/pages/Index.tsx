@@ -86,7 +86,7 @@ const Index = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary via-blue-600 to-accent flex items-center justify-center shadow-lg shadow-primary/30">
-                <span className="text-2xl">💼</span>
+                <img src="/android-chrome-192x192.png" alt="logo" />
               </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-primary via-blue-500 to-accent bg-clip-text text-transparent">
                 taskLink
@@ -313,7 +313,7 @@ const Index = () => {
           </div>
           <div className="border-t border-border/50 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="text-sm text-muted-foreground">
-              © 2024 taskLink. All rights reserved.
+              © 2025 taskLink. All rights reserved.
             </div>
             <div className="flex gap-4">
               <a href="#" className="text-muted-foreground hover:text-primary transition-colors">Twitter</a>
