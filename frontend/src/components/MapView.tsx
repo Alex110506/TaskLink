@@ -37,6 +37,10 @@ export function GoogleMapView({
           mapContainerStyle={{ height: "calc(100vh - 12rem)", width: "100%" }}
           center={locations[0]?.coords}
           zoom={zoom}
+          options={{
+            clickableIcons: false, // disables default Google info popups
+          }}
+
         >
           {locations.map((loc, i) => (
             <Marker
