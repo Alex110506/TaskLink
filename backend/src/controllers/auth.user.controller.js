@@ -73,7 +73,7 @@ export async function signupU(req, res) {
 
     // 8. Sign JWT token
     const token = jwt.sign(
-      { userId: newUser._id },
+      { id: newUser._id },
       process.env.JWT_SECRET_KEY,
       {
         expiresIn: "30d"
@@ -114,9 +114,11 @@ export async function loginU(req,res){
             return res.status(401).json({message:"Invalid email or password"})
         }
 
-        const token=jwt.sign({userId:user._id},process.env.JWT_SECRET_KEY,{
+        const token=jwt.sign({id:user._id},process.env.JWT_SECRET_KEY,{
             expiresIn:"30d"
         })
+
+        console.log(token,"login");
 
         res.cookie("jwt", token, {
           maxAge: 30 * 24 * 60 * 60 * 1000,

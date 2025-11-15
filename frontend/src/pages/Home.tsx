@@ -1,7 +1,20 @@
 import { TaskCard } from "@/components/TaskCard";
 import { JobCard } from "@/components/JobCard";
+import { useEffect } from "react";
+import { useState } from "react";
 
 const Home = () => {
+  const [jobs, setJobs] = useState([{
+    name: "",
+    description: "",
+    skills: "",
+    company: "",            // store Business _id
+    location: "",
+    employmentType: "",     // "remote", "on-site", "hybrid"
+    numberOfPositions: 1,
+    assignedTo: [],         // array of user IDs
+    jobApplicants: [],      // array of user IDs
+  }]);
   const tasks = [
     {
       title: "Update client presentation",
@@ -26,29 +39,46 @@ const Home = () => {
     },
   ];
 
-  const jobs = [
-    {
-      company: "TechCorp Inc.",
-      position: "Senior Frontend Developer",
-      description: "Join our team to build next-generation web applications using React and TypeScript.",
-      location: "Remote",
-      type: "Full-time",
-    },
-    {
-      company: "DataFlow Solutions",
-      position: "Product Manager",
-      description: "Lead product strategy for our data analytics platform serving enterprise clients.",
-      location: "San Francisco, CA",
-      type: "Full-time",
-    },
-    {
-      company: "CloudBridge Systems",
-      position: "DevOps Engineer",
-      description: "Help build and maintain our cloud infrastructure with AWS and Kubernetes.",
-      location: "Remote",
-      type: "Contract",
-    },
-  ];
+  // const jobs = [
+  //   {
+  //     company: "TechCorp Inc.",
+  //     position: "Senior Frontend Developer",
+  //     description: "Join our team to build next-generation web applications using React and TypeScript.",
+  //     location: "Remote",
+  //     type: "Full-time",
+  //   },
+  //   {
+  //     company: "DataFlow Solutions",
+  //     position: "Product Manager",
+  //     description: "Lead product strategy for our data analytics platform serving enterprise clients.",
+  //     location: "San Francisco, CA",
+  //     type: "Full-time",
+  //   },
+  //   {
+  //     company: "CloudBridge Systems",
+  //     position: "DevOps Engineer",
+  //     description: "Help build and maintain our cloud infrastructure with AWS and Kubernetes.",
+  //     location: "Remote",
+  //     type: "Contract",
+  //   },
+  // ];
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const res = await fetch("http://localhost:5001/api/jobs/user/getJobs", {
+          credentials: "include"
+        });
+        const data = await res.json();
+        console.log(data);
+        setJobs(data.jobs)
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchTasks();
+  }, []);
 
   return (
     <div className="space-y-8">
@@ -71,7 +101,19 @@ const Home = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {jobs.map((job, index) => (
-            <JobCard key={index} {...job} />
+            <JobCard
+              key={index}
+              name={job.name}
+              description={job.description}
+              skills={job.skills}
+              //@ts-ignore
+              company={job.company?.name}  // flatten the company
+              location={job.location}
+              employmentType={job.employmentType}
+              numberOfPositions={job.numberOfPositions}
+              assignedTo={job.assignedTo}
+              jobApplicants={job.jobApplicants}
+            />
           ))}
         </div>
       </section>

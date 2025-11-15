@@ -81,8 +81,9 @@ const App = () => {
           <Routes>
             {/* --- Rute Publice (Protejate de PublicOnlyLayout) --- */}
             {/* Doar utilizatorii nelogați pot vedea /landing și /auth */}
-            <Route element={<PublicOnlyLayout />}>
+            
               <Route path="/landing" element={<Index />} />
+            <Route element={<PublicOnlyLayout />}>
               <Route path="/auth" element={<Auth />} />
             </Route>
 
