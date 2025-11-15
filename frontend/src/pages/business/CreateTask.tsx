@@ -85,13 +85,13 @@ const CreateTask = () => {
 
             {/* Team Assignment */}
             <div className="space-y-2">
-              <Label htmlFor="team">Assign to Team *</Label>
+              <Label htmlFor="team">Assign to Employee *</Label>
               <select
                 id="team"
                 required
                 className="w-full h-10 px-3 rounded-md border border-border/50 bg-background/50 focus:border-primary focus:outline-none"
               >
-                <option value="">Select a team</option>
+                <option value="">Select a user</option>
                 {teams.map((team, index) => (
                   <option key={index} value={team}>
                     {team}
@@ -110,40 +110,9 @@ const CreateTask = () => {
               />
             </div>
 
-            {/* Estimated Hours */}
-            <div className="space-y-2">
-              <Label htmlFor="estimated-hours">Estimated Hours</Label>
-              <Input
-                id="estimated-hours"
-                type="number"
-                min="1"
-                placeholder="e.g., 8"
-                className="bg-background/50 border-border/50 focus:border-primary"
-              />
-            </div>
+            
 
-            {/* Additional Options */}
-            <div className="space-y-3 p-4 rounded-lg border border-border/50 bg-gradient-to-r from-blue-900/5 to-transparent">
-              <h3 className="font-semibold text-sm">Additional Options</h3>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="tags">Tags (Optional)</Label>
-                  <Input
-                    id="tags"
-                    placeholder="e.g., urgent, backend, api"
-                    className="bg-background/50 border-border/50 focus:border-primary"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="dependencies">Dependencies (Optional)</Label>
-                  <Input
-                    id="dependencies"
-                    placeholder="Task IDs this depends on"
-                    className="bg-background/50 border-border/50 focus:border-primary"
-                  />
-                </div>
-              </div>
-            </div>
+            
 
             {/* Submit Buttons */}
             <div className="flex gap-4 pt-4">
@@ -155,14 +124,7 @@ const CreateTask = () => {
                 <PlusSquare className="h-5 w-5 mr-2" />
                 Create Task
               </Button>
-              <Button 
-                type="button"
-                variant="outline"
-                size="lg"
-                className="border-border/50"
-              >
-                Save as Draft
-              </Button>
+             
             </div>
           </CardContent>
         </Card>

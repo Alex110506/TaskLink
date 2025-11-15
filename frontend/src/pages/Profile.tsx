@@ -8,13 +8,84 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mail, MapPin, Phone, Edit, LogOut } from "lucide-react";
+import { Mail, MapPin, Phone, Edit, LogOut, CheckCircle } from "lucide-react";
 import { useAuthStore } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
 
 const Profile = () => {
-  const { user } = useAuthStore();
-  
+  const { user, setPersonal } = useAuthStore();
+
+  const [edit, setEdit] = useState(false);
+  const [editedUser, setEditedUser] = useState(user);
+  const [isLoading, setIsLoading] = useState(false);
+
+
+  async function updateUserProfile() {
+    setIsLoading(true); // start loading immediately
+
+    try {
+      const res = await fetch("http://localhost:5001/api/register/user/update", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(editedUser),
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        // Handle non-200 responses
+        const errorData = await res.json();
+        toast({
+          title: "Error",
+          description: errorData.message || "Failed to update profile",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      const data = await res.json();
+
+      const {
+        fullName,
+        email,
+        phoneNumber,
+        bio,
+        job,
+        yearsExperience,
+        skills,
+        location,
+      } = data.user;
+
+      // Update local state
+      const updatedUser = { fullName, email, phoneNumber, bio, job, yearsExperience, skills, location };
+      setEditedUser(updatedUser);
+      setPersonal(updatedUser);
+
+      // Show success toast
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been updated successfully.",
+        variant: "default",
+      });
+
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Network or server error:", error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+    }
+  }
+
+
+
   function splitSmart(str) {
     return str
       .split(/[,\/\s]+/)   // split by comma, slash, or any amount of whitespace
@@ -32,12 +103,12 @@ const Profile = () => {
       .join("");                  // join initials together
   }
 
-  const skillsArr=splitSmart(user.skills)
-  const skillElems=skillsArr.map((item,idx)=>{
+  const skillsArr = splitSmart(user.skills)
+  const skillElems = skillsArr.map((item, idx) => {
     return <Badge variant="secondary" key={idx}>{item}</Badge>
   })
 
-  
+
 
   const { toast } = useToast();
 
@@ -86,22 +157,44 @@ const Profile = () => {
           <div className="flex flex-col md:flex-row gap-6">
             <Avatar className="h-24 w-24">
               <AvatarFallback className="bg-primary/10 text-primary text-2xl font-bold">
-                {getInitials(user.fullName)}
+                {getInitials(editedUser.fullName)}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-foreground">
-                    {user.fullName}
-                  </h2>
-                  <p className="text-muted-foreground">{user.job}</p>
+                  {!edit ? (
+                    <h2 className="text-2xl font-bold text-foreground">
+                      {editedUser.fullName}
+                    </h2>
+                  ) : (
+                    <Input value={editedUser.fullName} onChange={(e) => setEditedUser({ ...editedUser, fullName: e.target.value })} className="text-2xl font-bold text-foreground" />
+                  )}
+
+                  {!edit ? (
+                    <p className="text-sm mt-2">{editedUser.job}</p>
+                  ) : (
+                    <Input value={editedUser.job} onChange={(e) => setEditedUser({ ...editedUser, job: e.target.value })} className="text-sm mt-2" />
+                  )}
                 </div>
                 <div className="flex flex-col items-end gap-2">
-                  <Button size="sm">
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit Profile
-                  </Button>
+                  {
+                    !edit ? (
+                      <Button onClick={() => setEdit(true)} size="sm">
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit Profile
+                      </Button>
+                    ) : (
+                      <Button onClick={() => {
+                        setEdit(false)
+                        updateUserProfile()
+                      }} size="sm">
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Save changes
+                      </Button>
+                    )
+                  }
+
 
                   <Button
                     size="sm"
@@ -130,25 +223,27 @@ const Profile = () => {
           <CardDescription>How to reach you</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center gap-3">
-            <Mail className="h-5 w-5 text-muted-foreground" />
-            <div>
-              <p className="text-sm text-muted-foreground">Email</p>
-              <p className="font-medium">{user.email}</p>
-            </div>
-          </div>
+          
           <div className="flex items-center gap-3">
             <Phone className="h-5 w-5 text-muted-foreground" />
             <div>
               <p className="text-sm text-muted-foreground">Phone</p>
-              <p className="font-medium">{user.phoneNumber}</p>
+              {!edit ? (
+                <p className="font-medium">{editedUser.phoneNumber}</p>
+              ) : (
+                <Input value={editedUser.phoneNumber} onChange={(e) => setEditedUser({ ...editedUser, phoneNumber: e.target.value })} className="font-medium" />
+              )}
             </div>
           </div>
           <div className="flex items-center gap-3">
             <MapPin className="h-5 w-5 text-muted-foreground" />
             <div>
               <p className="text-sm text-muted-foreground">Location</p>
-              <p className="font-medium">{user.location}</p>
+              {!edit ? (
+                <p className="font-medium">{editedUser.location}</p>
+              ) : (
+                <Input value={editedUser.location} onChange={(e) => setEditedUser({ ...editedUser, location: e.target.value })} className="font-medium" />
+              )}
             </div>
           </div>
         </CardContent>
@@ -160,7 +255,11 @@ const Profile = () => {
           <CardDescription>Professional summary</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">{user.bio}</p>
+          {!edit ? (
+            <p className="text-muted-foreground">{editedUser.bio}</p>
+          ) : (
+            <Input value={editedUser.bio} onChange={(e) => setEditedUser({ ...editedUser, bio: e.target.value })} className="text-muted-foreground" />
+          )}
         </CardContent>
       </Card>
     </div>

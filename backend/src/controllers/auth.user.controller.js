@@ -141,7 +141,7 @@ export async function logoutU(req,res){
 
 
 export async function updateUserU(req, res) {
-  const userId = req.params.id;
+  const userId = req.user?._id;
   const {
     fullName,
     phoneNumber,
@@ -153,6 +153,7 @@ export async function updateUserU(req, res) {
   } = req.body;
 
   try {
+    console.log(userId);
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       {
