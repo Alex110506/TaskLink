@@ -1,4 +1,6 @@
 import Job from "../models/Job.js";
+import Business from "../models/Business.js";
+import User from "../models/User.js";
 
 export const getJobs = async (req, res) => {
   try {
@@ -76,5 +78,34 @@ export const sendApplication = async (req, res) => {
       success: false,
       message: "Server error while sending job application",
     });
+  }
+};
+
+export const getBusinesses = async (req, res) => {
+  try {
+    const userId = req.user?._id;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    // Find all jobs where this user is assigned
+    const jobs = await Job.find({ assignedTo: userId })
+      .populate("company") // populate company details
+      .lean();
+
+    // Extract unique companies
+    const companyMap = new Map();
+    jobs.forEach(job => {
+      if (job.company) {
+        companyMap.set(job.company._id.toString(), job.company);
+      }
+    });
+
+    const companies = Array.from(companyMap.values());
+
+    res.status(200).json({ success: true, companies });
+  } catch (err) {
+    console.error("getBusinesses error:", err);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };

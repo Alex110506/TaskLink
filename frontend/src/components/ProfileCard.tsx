@@ -3,12 +3,17 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Mail, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/lib/utils";
 
 interface ProfileCardProps {
   name: string;
+  email:string;
 }
 
-export function ProfileCard({ name }: ProfileCardProps) {
+export function ProfileCard({ name,email }: ProfileCardProps) {
+  const { user } = useAuthStore();
+
+
   const navigate = useNavigate();
   const statusConfig = {
     online: "bg-success",
@@ -23,8 +28,9 @@ export function ProfileCard({ name }: ProfileCardProps) {
     .toUpperCase();
 
   const handleChatClick = () => {
-    const userId = name.toLowerCase().replace(/\s+/g, "-");
-    navigate(`/chat/user/${userId}`);
+    //const userId = name.toLowerCase().replace(/\s+/g, "-");
+    navigate(`/chat/user/${encodeURIComponent(user.email)}|${encodeURIComponent(email)}`);
+
   };
 
   return (

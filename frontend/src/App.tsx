@@ -125,6 +125,7 @@ const App = () => {
                     path="/business/create-task"
                     element={<CreateTask />}
                   />
+                  <Route path="/chat/:type/:id" element={<Chat />} />
                   <Route path="/business/tasks" element={<BusinessTasks />} />
                   <Route
                     path="/business/profile"

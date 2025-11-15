@@ -12,6 +12,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/lib/utils";
 
 interface Member {
   _id: string;
@@ -31,13 +33,18 @@ const BusinessChat = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const {businessUser}=useAuthStore()
 
-  const employees = [
-    { name: "Alice Johnson", role: "Frontend Developer", status: "online", unread: 2 },
-    { name: "Bob Smith", role: "Backend Developer", status: "away", unread: 0 },
-    { name: "Carol Williams", role: "Product Manager", status: "online", unread: 1 },
-    { name: "David Brown", role: "UI/UX Designer", status: "offline", unread: 0 },
-  ];
+  const [employees,setEmployees]=useState([])
+
+  const navigate=useNavigate()
+
+  // const employees = [
+  //   { name: "Alice Johnson", role: "Frontend Developer", status: "online", unread: 2 },
+  //   { name: "Bob Smith", role: "Backend Developer", status: "away", unread: 0 },
+  //   { name: "Carol Williams", role: "Product Manager", status: "online", unread: 1 },
+  //   { name: "David Brown", role: "UI/UX Designer", status: "offline", unread: 0 },
+  // ];
 
   useEffect(() => {
     const getTeams = async () => {
@@ -59,11 +66,47 @@ const BusinessChat = () => {
       }
     };
 
+    const fetchUsers = async () => {
+      setLoading(true);
+      setError("");
+
+      try {
+        const res = await fetch("http://localhost:5001/api/jobs/business/getUsers", {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch users");
+        }
+
+        const data = await res.json();
+        console.log(data);
+
+        if (data.success) {
+          setEmployees(data.users || []);
+        } else {
+          setError("No users found");
+        }
+      } catch (err: any) {
+        setError(err.message || "Something went wrong");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers()
     getTeams();
   }, []);
 
   if (loading) return <p>Loading teams...</p>;
   if (error) return <p>Error: {error}</p>;
+
+  const handleChatClick = (userEmail,businessEmail) => {
+    //const userId = name.toLowerCase().replace(/\s+/g, "-");
+    navigate(`/chat/business/${encodeURIComponent(userEmail)}|${encodeURIComponent(businessEmail)}`);
+
+  };
 
   return (
     <div className="space-y-6">
@@ -88,6 +131,7 @@ const BusinessChat = () => {
             {employees.map((employee, index) => (
               <Card
                 key={index}
+                onClick={()=>handleChatClick(employee.email,businessUser.email)}
                 className="border-border/50 hover:border-primary/50 transition-all cursor-pointer bg-gradient-to-r from-blue-900/5 to-transparent"
               >
                 <CardContent className="p-4">
@@ -95,27 +139,16 @@ const BusinessChat = () => {
                     <div className="relative">
                       <Avatar className="h-12 w-12">
                         <AvatarFallback className="bg-gradient-to-br from-primary to-blue-600 text-primary-foreground">
-                          {employee.name.split(" ").map((n) => n[0]).join("")}
+                          {employee.fullName.split(" ").map((n) => n[0]).join("")}
                         </AvatarFallback>
                       </Avatar>
-                      <div
-                        className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-card ${employee.status === "online"
-                            ? "bg-green-500"
-                            : employee.status === "away"
-                              ? "bg-yellow-500"
-                              : "bg-gray-500"
-                          }`}
-                      />
+                      
                     </div>
                     <div className="flex-1">
-                      <div className="font-semibold">{employee.name}</div>
-                      <div className="text-sm text-muted-foreground">{employee.role}</div>
+                      <div className="font-semibold">{employee.fullName}</div>
+                      <div className="text-sm text-muted-foreground">{employee.email}</div>
                     </div>
-                    {employee.unread > 0 && (
-                      <Badge className="bg-primary text-primary-foreground">
-                        {employee.unread}
-                      </Badge>
-                    )}
+                    
                   </div>
                 </CardContent>
               </Card>

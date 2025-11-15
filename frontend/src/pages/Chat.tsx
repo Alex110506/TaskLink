@@ -4,39 +4,69 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ArrowLeft, Send, Users as UsersIcon } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import io, { Socket } from "socket.io-client";
+import { useAuthStore } from "@/lib/utils"; // 1. FIX: Reverting to original import path from user's file
+
+interface Message {
+  id: number;
+  text: string;
+  sender: string; // This will be the user's email
+  timestamp: string;
+}
 
 export default function Chat() {
-  const { type, id } = useParams<{ type: string; id: string }>();
+  const combined = useParams();
+  const { accountType} = useAuthStore(); // We still need accountType if you use it elsewhere, but not for sender logic
+  console.log(combined);
+  const [userMail, businessMail] = combined.id
+    ?.split("|")
+    .map(decodeURIComponent) || ["", ""];
+
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<Array<{ id: number; text: string; sender: string; timestamp: string }>>([
-    { id: 1, text: "Hey! How are you?", sender: "other", timestamp: "10:30 AM" },
-    { id: 2, text: "I'm good, thanks! Working on the new project.", sender: "me", timestamp: "10:32 AM" },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const socketRef = useRef(null);
 
-  const chatName = type === "team" 
-    ? `Team Chat - ${id}` 
-    : id?.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  const myMail=accountType==="business" ? businessMail : userMail
+
+  console.log(userMail, businessMail);
+
+  useEffect(() => {
+    socketRef.current = io("http://localhost:5001");
+
+    socketRef.current.emit("join_room", `${userMail}-${businessMail}`);
+
+    socketRef.current.on("receive_message", (msg: Message) => {
+      setMessages(prev => [...prev, msg]);
+    });
+
+    return () => {
+      socketRef.current?.disconnect();
+    };
+  }, [userMail, businessMail]);
 
   const handleSend = () => {
-    if (!message.trim()) return;
-    
-    setMessages([
-      ...messages,
-      {
-        id: messages.length + 1,
-        text: message,
-        sender: "me",
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      }
-    ]);
+    if (!message.trim()) return; 
+
+    const newMessage: Message = {
+      id: Date.now(),
+      text: message,
+      // 2. FIX: Reverted to the simple, correct logic.
+      // The sender is *always* the logged-in user's email.
+      sender: accountType==="business" ? businessMail : userMail,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    socketRef.current?.emit("send_message", {
+      room: `${userMail}-${businessMail}`,
+      message: newMessage
+    });
+
+    setMessages(prev => [...prev, newMessage]);
+
     setMessage("");
   };
-
-  const initials = type === "team" 
-    ? "T" 
-    : id?.split("-").map(w => w.charAt(0).toUpperCase()).join("") || "U";
 
   return (
     <div className="h-full flex flex-col max-w-4xl mx-auto">
@@ -46,16 +76,18 @@ export default function Chat() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate("/team")}
+              onClick={() => navigate("/team")} 
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <Avatar className="h-10 w-10">
               <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                {type === "team" ? <UsersIcon className="h-5 w-5" /> : initials}
+                <UsersIcon className="h-5 w-5" />
               </AvatarFallback>
             </Avatar>
-            <CardTitle className="text-lg">{chatName}</CardTitle>
+            {/* 3. FIX: Simplified title. `businessMail` is always the other person,
+                based on your navigation logic from profilecard.tsx */}
+            <CardTitle className="text-lg">Chat with {businessMail}</CardTitle>
           </div>
         </CardHeader>
 
@@ -63,11 +95,13 @@ export default function Chat() {
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className={`flex ${msg.sender === "me" ? "justify-end" : "justify-start"}`}
+              // This display logic is correct and now matches the handleSend logic
+              className={`flex ${msg.sender === myMail ? "justify-end" : "justify-start"}`}
             >
               <div
                 className={`max-w-[70%] rounded-lg px-4 py-2 ${
-                  msg.sender === "me"
+                  // This styling logic is also correct
+                  msg.sender === myMail
                     ? "bg-primary text-primary-foreground"
                     : "bg-secondary text-secondary-foreground"
                 }`}

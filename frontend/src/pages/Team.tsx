@@ -3,14 +3,16 @@ import { TeamCard } from "@/components/TeamCard";
 import { useEffect, useState } from "react";
 
 const Team = () => {
-  const profiles = [
-    { name: "Nokia" as const },
-    { name: "Microsoft" as const },
-    { name: "BitDefender" as const },
-    { name: "Google" as const },
-    { name: "Meta" as const },
-    { name: "Netflix" as const },
-  ];
+  // const profiles = [
+  //   { name: "Nokia" as const, email: "nokia@gmail.com" },
+  //   { name: "Microsoft" as const, email: "nokia@gmail.com" },
+  //   { name: "BitDefender" as const, email: "nokia@gmail.com" },
+  //   { name: "Google" as const, email: "nokia@gmail.com" },
+  //   { name: "Meta" as const, email: "nokia@gmail.com" },
+  //   { name: "Netflix" as const, email: "nokia@gmail.com" },
+  // ];
+
+  const [profiles,setProfiles]=useState([])
 
   const [teams, setTeams] = useState([])
 
@@ -61,8 +63,36 @@ const Team = () => {
         setLoading(false);
       }
     };
+    const fetchBusinesses = async () => {
+      setLoading(true);
+      setError("");
+
+      try {
+        const res = await fetch("http://localhost:5001/api/jobs/user/getBusinesses", {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch businesses");
+        }
+
+        const data = await res.json();
+        console.log(data);
+        if (data.success) {
+          setProfiles(data.companies || []);
+        } else {
+          setError("No businesses found");
+        }
+      } catch (err: any) {
+        setError(err.message || "Something went wrong");
+      } finally {
+        setLoading(false);
+      }
+    };
 
     getTeams();
+    fetchBusinesses()
   }, []);
 
   console.log(teams);
@@ -84,12 +114,12 @@ const Team = () => {
       <section>
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-foreground mb-2">My Teams</h2>
-          <p className="text-muted-foreground">Collaborate across different projects</p>
+          <p className="text-muted-foreground">View your Team</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {teams.map((team, index) => (
-            <TeamCard key={index} 
-              jobName={team.jobName} 
+            <TeamCard key={index}
+              jobName={team.jobName}
               memberCount={team.users.length}
               members={team.users}
             />

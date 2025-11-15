@@ -1,47 +1,53 @@
 import express from "express";
-import dotenv from "dotenv"
-import cors from "cors"
-import path from "path"
-import http from "http"
-dotenv.config()
-import cookieParser from "cookie-parser"
+import dotenv from "dotenv";
+import cors from "cors";
+import path from "path";
+import http from "http";
+import cookieParser from "cookie-parser";
 import { GoogleGenAI } from '@google/genai';
-import registerRoutes from "./routes/register.route.js"
-import taskRoutes from "./routes/task.route.js"
-import jobRoutes from "./routes/jobs.route.js"
+import { Server } from "socket.io";
 
+// Routes
+import registerRoutes from "./routes/register.route.js";
+import taskRoutes from "./routes/task.route.js";
+import jobRoutes from "./routes/jobs.route.js";
 import { connectDb } from "./lib/db.js";
 
+dotenv.config();
+
 const app = express();
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 5001; // Good practice to have a fallback
+const __dirname = path.resolve();
 
-const ai = new GoogleGenAI(process.env.GEMINI_API_KEY);
+// 1. Create the HTTP server explicitly to share with Express and Socket.io
+const server = http.createServer(app);
 
+// 2. Initialize Socket.io attached to that server
+const io = new Server(server, {
+    cors: {
+        origin: "http://localhost:8080", // Match your Express CORS origin for consistency
+        methods: ["GET", "POST"]
+    },
+});
 
-
-const __dirname = path.resolve()
-
+// --- Middleware ---
 app.use(cors({
-    origin: "http://localhost:8080", // your frontend URL
-    credentials: true                // 🔥 allow cookies
+    origin: "http://localhost:8080",
+    credentials: true
 }));
 
-app.use(express.json({ limit: '10mb' }));
-//test
-app.use(express.json())
-app.use(cookieParser())
+// Only use this once (handles the limit)
+app.use(express.json({ limit: '10mb' })); 
+app.use(cookieParser());
 
-// app.use("/api/chat",chatRoutes)
-app.use("/api/tasks", taskRoutes)
-app.use("/api/register", registerRoutes)
-app.use("/api/jobs", jobRoutes)
+// --- Routes ---
+app.use("/api/tasks", taskRoutes);
+app.use("/api/register", registerRoutes);
+app.use("/api/jobs", jobRoutes);
 
+// --- Gemini Setup ---
+const ai = new GoogleGenAI(process.env.GEMINI_API_KEY);
 
-
-/**
- * POST /optimize-cv
- * Body: { resumeText: string, userInstruction: string }
- */
 app.post('/api/optimize-cv', async (req, res) => {
 
     try {
@@ -85,12 +91,35 @@ app.post('/api/optimize-cv', async (req, res) => {
     }
 });
 
+// --- Socket Logic ---
+io.on("connection", (socket) => {
+    console.log(`User Connected: ${socket.id}`);
 
+    // 1. Handle Joining Rooms
+    socket.on("join_room", (room) => {
+        socket.join(room);
+        console.log(`User ${socket.id} joined room: ${room}`);
+    });
 
-const server = http.createServer(app);
+    // 2. Handle Sending Messages to Specific Room
+    socket.on("send_message", (data) => {
+        const { room, message } = data;
+        console.log("message",message);
+        
+        // Broadcast to everyone in the room EXCEPT the sender
+        // (This works perfectly with your frontend logic because 
+        // your frontend adds its own message manually)
+        socket.to(room).emit("receive_message", message);
+    });
 
+    socket.on("disconnect", () => {
+        console.log("User Disconnected", socket.id);
+    });
+});
 
+// --- Start Server ---
+// Listen on 'server', not 'app'
 server.listen(PORT, () => {
-    console.log(`listnening on port ${PORT}...`);
+    console.log(`Listening on port ${PORT}...`);
     connectDb();
-})
+});

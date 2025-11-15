@@ -1,4 +1,6 @@
 import Job from "../models/Job.js";
+import Business from "../models/Business.js";
+import User from "../models/User.js";
 
 // Get all jobs for a specific business
 export async function getJobsB(req, res) {
@@ -142,6 +144,36 @@ export async function rejectCandidate(req, res) {
     res.status(200).json({ success: true, job: populatedJob });
   } catch (error) {
     console.error("Reject candidate error:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+}
+
+export async function getUsers(req, res) {
+  try {
+    const businessId = req.user?._id;
+    if (!businessId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    // 1. Find all jobs for this business
+    const jobs = await Job.find({ company: businessId })
+      .populate("assignedTo", "fullName email") // populate only needed fields
+      .lean();
+
+    // 2. Collect all assigned users across jobs
+    const allUsers = jobs.flatMap(job => job.assignedTo || []);
+
+    // 3. Remove duplicate users based on _id
+    const uniqueUsersMap = new Map();
+    allUsers.forEach(user => {
+      uniqueUsersMap.set(user._id.toString(), user);
+    });
+
+    const uniqueUsers = Array.from(uniqueUsersMap.values());
+
+    res.status(200).json({ success: true, users: uniqueUsers });
+  } catch (err) {
+    console.error("getUsers error:", err);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 }
