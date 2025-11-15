@@ -5,26 +5,132 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PlusSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect, useState } from "react";
+import { Task } from "@/lib/utils";
 
 const CreateTask = () => {
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast({
-      title: "Task Created!",
-      description: "The task has been assigned to the team.",
-    });
+  // Form state
+  const [newTask, setNewTask] = useState<Task>({
+    name: "",
+    importance: "high",
+    description: "",
+    assignedTo: [],
+    dueDate: "",
+    status: "not completed",
+    business: "",
+  });
+
+  const [users, setUsers] = useState<any[]>([]); // state to store users
+
+  useEffect(() => {
+    const getUsers = async () => {
+      setIsLoading(true);
+      try {
+        const res = await fetch("http://localhost:5001/api/tasks/business/getUsers", {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (!res.ok) {
+          console.error("Failed to fetch users");
+          setIsLoading(false);
+          return;
+        }
+
+        const data = await res.json();
+        setUsers(data.users || []);
+        console.log(data.users);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        setIsLoading(false);
+      }
+    };
+
+    getUsers(); // don't forget to call the async function
+  }, []);
+
+
+  // Example team options
+  const teams = ["Alice", "Bob", "Charlie", "David", "Eve"];
+
+  // Handle input changes
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { id, value, options } = e.target as HTMLSelectElement;
+
+    if (id === "assignedTo") {
+      const selected = Array.from(options)
+        .filter(option => option.selected)
+        .map(option => option.value);
+      setNewTask(prev => ({ ...prev, assignedTo: selected }));
+    } else {
+      setNewTask(prev => ({ ...prev, [id]: value }));
+    }
   };
 
-  const teams = [
-    "Backend Engineers",
-    "Frontend Engineers",
-    "Product Team",
-    "Design Team",
-    "QA Team",
-    "DevOps Team",
-  ];
+
+  const handleCreate = async () => {
+    if (!newTask.name || !newTask.importance || !newTask.description || !newTask.assignedTo) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const res = await fetch("http://localhost:5001/api/tasks/business/createTask", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(newTask),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast({
+          title: "Error",
+          description: data.message || "Failed to create task",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      toast({
+        title: "Task Created",
+        description: `Task "${data.task.name}" created successfully.`,
+      });
+
+      // Reset form
+      setNewTask({ name: "", importance: "high", description: "", assignedTo: [], dueDate: "", status: "not completed", business: "" });
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error creating task:", error);
+      toast({
+        title: "Error",
+        description: "Network or server error occurred. Please try again.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+    }
+  };
+
+  // const handleSubmit = (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   handleCreate();
+  // };
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -35,7 +141,7 @@ const CreateTask = () => {
         <p className="text-muted-foreground mt-1">Assign a new task to your team</p>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form>
         <Card className="border-border/50 bg-gradient-to-br from-card/80 to-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -47,9 +153,11 @@ const CreateTask = () => {
           <CardContent className="space-y-6">
             {/* Task Name */}
             <div className="space-y-2">
-              <Label htmlFor="task-name">Task Name *</Label>
+              <Label htmlFor="title">Task Name *</Label>
               <Input
-                id="task-name"
+                id="title"
+                value={newTask.name}
+                onChange={(e) => setNewTask((prev) => ({ ...prev, name: e.target.value }))}
                 placeholder="e.g., Implement User Authentication"
                 required
                 className="bg-background/50 border-border/50 focus:border-primary"
@@ -61,6 +169,8 @@ const CreateTask = () => {
               <Label htmlFor="importance">Importance *</Label>
               <select
                 id="importance"
+                value={newTask.importance}
+                onChange={handleChange}
                 required
                 className="w-full h-10 px-3 rounded-md border border-border/50 bg-background/50 focus:border-primary focus:outline-none"
               >
@@ -77,54 +187,59 @@ const CreateTask = () => {
               <Label htmlFor="description">Description *</Label>
               <Textarea
                 id="description"
+                value={newTask.description}
+                onChange={handleChange}
                 placeholder="Describe the task, requirements, and expected outcome..."
                 required
                 className="min-h-[200px] bg-background/50 border-border/50 focus:border-primary resize-none"
               />
             </div>
 
-            {/* Team Assignment */}
+            {/* User Assignment */}
             <div className="space-y-2">
-              <Label htmlFor="team">Assign to Employee *</Label>
+              <Label htmlFor="assignedTo">Assign to Employee *</Label>
               <select
-                id="team"
+                id="assignedTo"
+                value={newTask.assignedTo[0] || ""}
+                onChange={(e) =>
+                  setNewTask(prev => ({ ...prev, assignedTo: [e.target.value] }))
+                }
                 required
                 className="w-full h-10 px-3 rounded-md border border-border/50 bg-background/50 focus:border-primary focus:outline-none"
               >
                 <option value="">Select a user</option>
-                {teams.map((team, index) => (
-                  <option key={index} value={team}>
-                    {team}
+                {users.map(user => (
+                  <option key={user._id} value={user._id}>
+                    {user.fullName}
                   </option>
                 ))}
               </select>
+
             </div>
 
             {/* Due Date */}
             <div className="space-y-2">
-              <Label htmlFor="due-date">Due Date</Label>
+              <Label htmlFor="dueDate">Due Date</Label>
               <Input
-                id="due-date"
+                id="dueDate"
                 type="date"
-                className="bg-background/50 border-border/50 focus:border-primary"
+                value={newTask.dueDate ? new Date(newTask.dueDate).toISOString().split("T")[0] : ""}
+                onChange={handleChange}
               />
             </div>
 
-            
-
-            
-
             {/* Submit Buttons */}
             <div className="flex gap-4 pt-4">
-              <Button 
+              <Button
                 type="submit"
+                disabled={isLoading}
                 className="flex-1 bg-gradient-to-r from-primary via-blue-600 to-accent hover:opacity-90 shadow-lg shadow-primary/30"
                 size="lg"
+                onClick={() => handleCreate()}
               >
                 <PlusSquare className="h-5 w-5 mr-2" />
-                Create Task
+                {isLoading ? "Creating..." : "Create Task"}
               </Button>
-             
             </div>
           </CardContent>
         </Card>

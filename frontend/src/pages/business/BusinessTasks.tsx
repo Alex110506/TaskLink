@@ -1,72 +1,49 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckSquare, Clock, Users, MoreVertical } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useEffect, useState } from "react";
+import { Task } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 const BusinessTasks = () => {
-  const tasks = [
-    {
-      id: 1,
-      name: "Implement User Authentication",
-      team: "Backend Engineers",
-      assignedTo: "Bob Smith",
-      importance: "high",
-      status: "in-progress",
-      dueDate: "2024-03-15",
-      estimatedHours: 16,
-      completedHours: 8,
-      description: "Set up JWT authentication system with refresh tokens",
-    },
-    {
-      id: 2,
-      name: "Design Landing Page",
-      team: "Design Team",
-      assignedTo: "David Brown",
-      importance: "medium",
-      status: "pending",
-      dueDate: "2024-03-20",
-      estimatedHours: 12,
-      completedHours: 0,
-      description: "Create mockups for new landing page with focus on conversion",
-    },
-    {
-      id: 3,
-      name: "Fix Payment Gateway Bug",
-      team: "Backend Engineers",
-      assignedTo: "Emma Davis",
-      importance: "critical",
-      status: "in-progress",
-      dueDate: "2024-03-10",
-      estimatedHours: 8,
-      completedHours: 6,
-      description: "Resolve issue with failed payment notifications",
-    },
-    {
-      id: 4,
-      name: "Optimize Dashboard Performance",
-      team: "Frontend Engineers",
-      assignedTo: "Alice Johnson",
-      importance: "high",
-      status: "completed",
-      dueDate: "2024-03-08",
-      estimatedHours: 20,
-      completedHours: 20,
-      description: "Improve loading times and reduce bundle size",
-    },
-    {
-      id: 5,
-      name: "User Research for New Feature",
-      team: "Product Team",
-      assignedTo: "Carol Williams",
-      importance: "medium",
-      status: "pending",
-      dueDate: "2024-03-25",
-      estimatedHours: 24,
-      completedHours: 0,
-      description: "Conduct interviews and surveys with target users",
-    },
-  ];
+  const [allTasks, setAllTasks] = useState<Task[]>([]);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const res = await fetch("http://localhost:5001/api/tasks/business/getTasks", {
+          method: "GET",
+          credentials: "include",
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          toast({
+            title: "Error",
+            description: data.message || "Failed to fetch business's tasks",
+            variant: "destructive",
+          });
+          console.error("Failed to fetch tasks:", data.message);
+          return;
+        }
+
+        setAllTasks(data.tasks); // data.tasks must match your Task[] structure
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+      }
+    };
+
+    fetchTasks();
+  }, []);
 
   const getImportanceBadge = (importance: string) => {
     const colors = {
@@ -88,11 +65,11 @@ const BusinessTasks = () => {
   };
 
   const filterTasks = (status?: string) => {
-    if (!status) return tasks;
-    return tasks.filter(task => task.status === status);
+    if (!status) return allTasks;
+    return allTasks.filter((task) => task.status === status);
   };
 
-  const TaskCard = ({ task }: { task: typeof tasks[0] }) => (
+  const TaskCard = ({ task }: { task: (typeof allTasks)[0] }) => (
     <Card className="border-border/50 hover:border-primary/50 transition-all bg-gradient-to-r from-card/80 to-card">
       <CardContent className="p-6">
         <div className="space-y-4">
@@ -105,10 +82,7 @@ const BusinessTasks = () => {
                   {task.importance}
                 </Badge>
                 <Badge className={getStatusBadge(task.status)}>
-                  {task.status.replace('-', ' ')}
-                </Badge>
-                <Badge variant="outline" className="border-accent/30 text-accent">
-                  {task.team}
+                  {task.status.replace("-", " ")}
                 </Badge>
               </div>
             </div>
@@ -122,7 +96,6 @@ const BusinessTasks = () => {
 
           {/* Metrics */}
           <div className="grid grid-cols-3 gap-4 pt-2 border-t border-border/50">
-            
             <div className="space-y-1">
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Clock className="h-3 w-3" />
@@ -132,14 +105,15 @@ const BusinessTasks = () => {
                 {new Date(task.dueDate).toLocaleDateString()}
               </div>
             </div>
-            
           </div>
-
 
           {/* Actions */}
           <div className="flex gap-2 pt-2">
-            
-            <Button size="sm" variant="outline" className="flex-1 border-border/50">
+            <Button
+              size="sm"
+              variant="outline"
+              className="flex-1 border-border/50"
+            >
               Update Status
             </Button>
           </div>
@@ -155,7 +129,9 @@ const BusinessTasks = () => {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-blue-500 to-accent bg-clip-text text-transparent">
             Task Management
           </h1>
-          <p className="text-muted-foreground mt-1">Monitor and manage all team tasks</p>
+          <p className="text-muted-foreground mt-1">
+            Monitor and manage all team tasks
+          </p>
         </div>
         <Button className="bg-gradient-to-r from-primary via-blue-600 to-accent hover:opacity-90 shadow-lg shadow-primary/30">
           <CheckSquare className="h-5 w-5 mr-2" />
@@ -166,19 +142,44 @@ const BusinessTasks = () => {
       {/* Stats */}
       <div className="grid md:grid-cols-4 gap-4">
         {[
-          { label: "Total Tasks", value: tasks.length, icon: "📋", color: "from-primary to-blue-600" },
-          { label: "In Progress", value: filterTasks('in-progress').length, icon: "🔄", color: "from-accent to-primary-light" },
-          { label: "Completed", value: filterTasks('completed').length, icon: "✅", color: "from-blue-600 to-primary" },
-          { label: "Pending", value: filterTasks('pending').length, icon: "⏳", color: "from-primary-light to-accent" },
+          {
+            label: "Total Tasks",
+            value: allTasks.length,
+            icon: "📋",
+            color: "from-primary to-blue-600",
+          },
+          {
+            label: "In Progress",
+            value: filterTasks("not completed").length,
+            icon: "🔄",
+            color: "from-accent to-primary-light",
+          },
+          {
+            label: "Completed",
+            value: filterTasks("completed").length,
+            icon: "✅",
+            color: "from-blue-600 to-primary",
+          },
+          {
+            label: "Pending",
+            value: filterTasks("pending").length,
+            icon: "⏳",
+            color: "from-primary-light to-accent",
+          },
         ].map((stat, index) => (
-          <Card key={index} className="border-border/50 bg-gradient-to-br from-card/80 to-card hover:border-primary/30 transition-all">
+          <Card
+            key={index}
+            className="border-border/50 bg-gradient-to-br from-card/80 to-card hover:border-primary/30 transition-all"
+          >
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">{stat.label}</p>
                   <p className="text-3xl font-bold mt-1">{stat.value}</p>
                 </div>
-                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center text-2xl shadow-lg`}>
+                <div
+                  className={`w-14 h-14 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center text-2xl shadow-lg`}
+                >
                   {stat.icon}
                 </div>
               </div>
@@ -198,24 +199,32 @@ const BusinessTasks = () => {
             <TabsList className="grid w-full grid-cols-4 mb-6">
               <TabsTrigger value="all">All Tasks</TabsTrigger>
               <TabsTrigger value="pending">Pending</TabsTrigger>
-              <TabsTrigger value="in-progress">In Progress</TabsTrigger>
+              <TabsTrigger value="not completed">In Progress</TabsTrigger>
               <TabsTrigger value="completed">Completed</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="all" className="space-y-4">
-              {tasks.map(task => <TaskCard key={task.id} task={task} />)}
+              {allTasks.map((task) => (
+                <TaskCard key={task._id} task={task} />
+              ))}
             </TabsContent>
-            
+
             <TabsContent value="pending" className="space-y-4">
-              {filterTasks('pending').map(task => <TaskCard key={task.id} task={task} />)}
+              {filterTasks("pending").map((task) => (
+                <TaskCard key={task._id} task={task} />
+              ))}
             </TabsContent>
-            
-            <TabsContent value="in-progress" className="space-y-4">
-              {filterTasks('in-progress').map(task => <TaskCard key={task.id} task={task} />)}
+
+            <TabsContent value="not completed" className="space-y-4">
+              {filterTasks("not completed").map((task) => (
+                <TaskCard key={task._id} task={task} />
+              ))}
             </TabsContent>
-            
+
             <TabsContent value="completed" className="space-y-4">
-              {filterTasks('completed').map(task => <TaskCard key={task.id} task={task} />)}
+              {filterTasks("completed").map((task) => (
+                <TaskCard key={task._id} task={task} />
+              ))}
             </TabsContent>
           </Tabs>
         </CardContent>

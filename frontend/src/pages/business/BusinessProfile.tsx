@@ -8,13 +8,79 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mail, MapPin, Edit, Phone, LogOut } from "lucide-react";
+import { Mail, MapPin, Edit, Phone, LogOut, CheckCircle } from "lucide-react";
 import { useAuthStore } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
 
 const BusinessProfile = () => {
-  const { businessUser } = useAuthStore();
+  const { businessUser, setBusinessUser } = useAuthStore();
+  const [isLoading, setIsLoading] = useState(false);
+  const [editedBusinessUser, setEditedBusinessUser] = useState(businessUser);
+  const [edit, setEdit] = useState(false);
   const { toast } = useToast();
+
+
+  async function updateBusinessProfile() {
+    setIsLoading(true); // start loading immediately
+
+    try {
+      const res = await fetch("http://localhost:5001/api/register/business/update", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(editedBusinessUser),
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        // Handle non-200 responses
+        const errorData = await res.json();
+        toast({
+          title: "Error",
+          description: errorData.message || "Failed to update profile",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      const data = await res.json();
+
+      const {
+        name,
+        email,
+        phone,
+        about,
+        field,
+        location,
+      } = data.business;
+
+      // Update local state
+      const updatedUser = { name, email, phone, about, field, location };
+      setEditedBusinessUser(updatedUser);
+      setBusinessUser(updatedUser);
+
+      // Show success toast
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been updated successfully.",
+        variant: "default",
+      });
+
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Network or server error:", error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+    }
+  }
 
   function getInitials(name) {
     return name
@@ -71,26 +137,55 @@ const BusinessProfile = () => {
           <div className="flex flex-col md:flex-row gap-6">
             <Avatar className="h-24 w-24">
               <AvatarFallback className="bg-gradient-to-br from-primary via-blue-600 to-accent text-primary-foreground text-2xl font-bold">
-                {getInitials(businessUser.name)}
+                {getInitials(editedBusinessUser.name)}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h2 className="text-3xl font-bold text-foreground">
-                    {businessUser.name}
+                  {!edit ? (
+                    <h2 className="text-3xl font-bold text-foreground">
+                    {editedBusinessUser.name}
                   </h2>
-                  <p className="text-muted-foreground">{businessUser.field}</p>
+                  ):(
+                    <Input
+                      value={editedBusinessUser.name}
+                      onChange={(e) => setEditedBusinessUser({ ...editedBusinessUser, name: e.target.value })}
+                      className="text-2xl font-bold text-foreground"
+                    />
+                  )}
+                  {!edit ? (
+                  <p className="text-muted-foreground">{editedBusinessUser.field}</p>
+
+                  ):(
+                    <Input
+                      value={editedBusinessUser.field}
+                      onChange={(e) => setEditedBusinessUser({ ...editedBusinessUser, field: e.target.value })}
+                      className="text-sm mt-2"
+                    />
+                  )}
                 </div>
 
                 <div className="flex flex-col items-end gap-2">
+                  {!edit ? (
                   <Button
                     size="sm"
                     className="bg-gradient-to-r from-primary to-blue-600 hover:opacity-90 flex items-center"
+                    onClick={()=>setEdit(true)}
                   >
                     <Edit className="h-4 w-4 mr-2" />
                     Edit Profile
                   </Button>
+                  ):(
+                    <Button onClick={() => {
+                        setEdit(false)
+                        updateBusinessProfile()
+                      }} size="sm">
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Save changes
+                      </Button>
+                  )}
+                  
 
                   {/* Logout button (design only) */}
                   <Button
@@ -105,8 +200,6 @@ const BusinessProfile = () => {
                   </Button>
                 </div>
               </div>
-
-              
             </div>
           </div>
         </CardContent>
@@ -119,25 +212,29 @@ const BusinessProfile = () => {
           <CardDescription>How to reach us</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center gap-3">
-            <Mail className="h-5 w-5 text-muted-foreground" />
-            <div>
-              <p className="text-sm text-muted-foreground">Email</p>
-              <p className="font-medium">{businessUser.email}</p>
-            </div>
-          </div>
+          
           <div className="flex items-center gap-3">
             <Phone className="h-5 w-5 text-muted-foreground" />
             <div>
               <p className="text-sm text-muted-foreground">Phone</p>
-              <p className="font-medium">{businessUser.phone}</p>
+              {!edit ? (
+              <p className="font-medium">{editedBusinessUser.phone}</p>
+
+              ):(
+                <Input value={editedBusinessUser.phone} onChange={(e) => setEditedBusinessUser({ ...editedBusinessUser, phone: e.target.value })} className="font-medium" />
+              )}
             </div>
           </div>
           <div className="flex items-center gap-3">
             <MapPin className="h-5 w-5 text-muted-foreground" />
             <div>
               <p className="text-sm text-muted-foreground">Office Address</p>
-              <p className="font-medium">{businessUser.location}</p>
+              {!edit ? (
+              <p className="font-medium">{editedBusinessUser.location}</p>
+
+              ):(
+                <Input value={editedBusinessUser.location} onChange={(e) => setEditedBusinessUser({ ...editedBusinessUser, location: e.target.value })} className="font-medium" />
+              )}
             </div>
           </div>
         </CardContent>
@@ -150,9 +247,14 @@ const BusinessProfile = () => {
           <CardDescription>Company overview</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground leading-relaxed">
-            {businessUser.about}
+          {!edit ? (
+            <p className="text-muted-foreground leading-relaxed">
+            {editedBusinessUser.about}
           </p>
+          ):(
+            <Input value={editedBusinessUser.about} onChange={(e) => setEditedBusinessUser({ ...editedBusinessUser, about: e.target.value })} className="text-muted-foreground leading-relaxed" />
+          )}
+          
         </CardContent>
       </Card>
     </div>

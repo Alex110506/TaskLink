@@ -119,7 +119,7 @@ export async function logoutB(req, res) {
 
 
 export async function updateBusinessB(req, res) {
-  const businessId = req.params.id;
+  const businessId = req.user._id;
   const {
     name,
     field,

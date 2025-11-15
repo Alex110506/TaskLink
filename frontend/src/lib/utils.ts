@@ -63,3 +63,25 @@ export const useAuthStore = create(
     }
   )
 );
+
+
+export type Task = {
+  _id?: string;
+
+  name: string;
+
+  importance: "low" | "medium" | "high";
+
+  description: string;
+
+  assignedTo: string[];
+
+  dueDate: string | Date;
+
+  status: "not completed" | "pending" | "completed";
+
+  business: string;
+
+  createdAt?: string;
+  updatedAt?: string;
+}

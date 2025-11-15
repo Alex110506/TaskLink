@@ -1,54 +1,48 @@
 import { TaskCard } from "@/components/TaskCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Task } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 const Tasks = () => {
-  const allTasks = [
-    {
-      title: "Design system update",
-      description: "Update design tokens and component library",
-      status: "in-progress" as const,
-      dueDate: "Mar 15",
-      priority: "high" as const,
-    },
-    {
-      title: "API integration testing",
-      description: "Complete end-to-end testing for new API endpoints",
-      status: "pending" as const,
-      dueDate: "Mar 18",
-      priority: "high" as const,
-    },
-    {
-      title: "Documentation review",
-      description: "Review and update technical documentation",
-      status: "pending" as const,
-      dueDate: "Mar 20",
-      priority: "medium" as const,
-    },
-    {
-      title: "Performance optimization",
-      description: "Improve application load time and runtime performance",
-      status: "in-progress" as const,
-      dueDate: "Mar 22",
-      priority: "medium" as const,
-    },
-    {
-      title: "User feedback analysis",
-      description: "Analyze user feedback from recent survey",
-      status: "completed" as const,
-      dueDate: "Mar 10",
-      priority: "low" as const,
-    },
-    {
-      title: "Security audit",
-      description: "Conduct security audit of authentication flow",
-      status: "completed" as const,
-      dueDate: "Mar 8",
-      priority: "high" as const,
-    },
-  ];
+  const [allTasks, setAllTasks] = useState<Task[]>([]);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:5001/api/tasks/user/getTasks",
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+        const data = await res.json();
+
+        if (!res.ok) {
+          toast({
+            title: "Error",
+            description: data.message || "Failed to fetch user's task",
+            variant: "destructive",
+          });
+          console.error("Failed to fetch tasks:", data.message);
+          return;
+        }
+
+        setAllTasks(data.tasks); // data.tasks must match your Task[] structure
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+      }
+    };
+
+    fetchTasks();
+  }, []);
 
   const pendingTasks = allTasks.filter((task) => task.status === "pending");
-  const inProgressTasks = allTasks.filter((task) => task.status === "in-progress");
+  const inProgressTasks = allTasks.filter(
+    (task) => task.status === "not completed"
+  );
   const completedTasks = allTasks.filter((task) => task.status === "completed");
 
   return (
@@ -69,7 +63,7 @@ const Tasks = () => {
         <TabsContent value="all" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {allTasks.map((task, index) => (
-              <TaskCard key={index} {...task} />
+              <TaskCard key={index} task={task} />
             ))}
           </div>
         </TabsContent>
@@ -77,7 +71,7 @@ const Tasks = () => {
         <TabsContent value="pending" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {pendingTasks.map((task, index) => (
-              <TaskCard key={index} {...task} />
+              <TaskCard key={index} task={task} />
             ))}
           </div>
         </TabsContent>
@@ -85,7 +79,7 @@ const Tasks = () => {
         <TabsContent value="progress" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {inProgressTasks.map((task, index) => (
-              <TaskCard key={index} {...task} />
+              <TaskCard key={index} task={task} />
             ))}
           </div>
         </TabsContent>
@@ -93,7 +87,7 @@ const Tasks = () => {
         <TabsContent value="completed" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {completedTasks.map((task, index) => (
-              <TaskCard key={index} {...task} />
+              <TaskCard key={index} task={task} />
             ))}
           </div>
         </TabsContent>
