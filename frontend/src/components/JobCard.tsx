@@ -2,8 +2,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Building2, MapPin, Briefcase } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "@/components/ui/use-toast";
+
 
 export interface JobCardProps {
+  id: string,
   name: string;
   description: string;
   skills: string;
@@ -15,9 +18,48 @@ export interface JobCardProps {
   jobApplicants: string[];        // array of User IDs
 }
 
-export function JobCard({name, company, description, skills, location,employmentType,numberOfPositions,assignedTo,jobApplicants }: JobCardProps) {
-  
-  
+export function JobCard({ id, name, company, description, skills, location, employmentType, numberOfPositions, assignedTo, jobApplicants }: JobCardProps) {
+
+
+  const handleApplication = async () => {
+    try {
+      const res = await fetch(`http://localhost:5001/api/jobs/user/${id}/sendApplication`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast({
+          title: "Application failed",
+          description: data.message || "Something went wrong.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "Your job application was submitted successfully!",
+      });
+
+    } catch (error) {
+      console.error("Error applying:", error);
+
+      toast({
+        title: "Error",
+        description: "Could not submit your application. Try again later.",
+        variant: "destructive",
+      });
+    }
+  };
+
+
+
   function splitSmart(str) {
     return str
       .split(/[,\/\s]+/)   // split by comma, slash, or any amount of whitespace
@@ -25,8 +67,8 @@ export function JobCard({name, company, description, skills, location,employment
       .filter(s => s.length > 0); // remove empty entries
   }
 
-  const skillsArr=splitSmart(skills)
-  const skillElems=skillsArr.map((item,idx)=>{
+  const skillsArr = splitSmart(skills)
+  const skillElems = skillsArr.map((item, idx) => {
     return <Badge variant="secondary" key={idx}>{item}</Badge>
   })
 
@@ -43,7 +85,7 @@ export function JobCard({name, company, description, skills, location,employment
           </div>
         </div>
       </CardHeader>
-      
+
       <CardContent>
         <p className="text-sm text-muted-foreground mb-4">{description}</p>
 
@@ -71,7 +113,9 @@ export function JobCard({name, company, description, skills, location,employment
             </div>
           )}
         </div>
-        <Button variant="default" className="w-full">
+        <Button variant="default" className="w-full"
+          onClick={() => handleApplication()}
+        >
           Send Application
         </Button>
       </CardContent>

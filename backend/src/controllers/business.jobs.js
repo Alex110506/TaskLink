@@ -11,8 +11,8 @@ export async function getJobsB(req, res) {
 
     const jobs = await Job.find({ company: businessId })
       .populate("company", "name")
-      .populate("assignedTo", "name email")
-      .populate("jobApplicants", "name email");
+      .populate("assignedTo", "fullName email skills yearsExperience location")
+      .populate("jobApplicants", "fullName email skills yearsExperience location");
 
     res.status(200).json({ success: true, jobs });
   } catch (error) {
@@ -60,8 +60,8 @@ export async function createJob(req, res) {
 
     const populatedJob = await Job.findById(savedJob._id)
       .populate("company", "name")
-      .populate("assignedTo", "name email")
-      .populate("jobApplicants", "name email");
+      .populate("assignedTo", "fullName email skills yearsExperience location")
+      .populate("jobApplicants", "fullName email skills yearsExperience location");
 
     res.status(201).json({ success: true, job: populatedJob });
 
@@ -77,9 +77,11 @@ export async function createJob(req, res) {
 
 // Accept a candidate for a job
 export async function acceptCandidate(req, res) {
+  console.log("accept");
   try {
     const jobId = req.params.id;
-    const { userId } = req.body; // ID of the candidate to accept
+    const { userId } = req.body;
+    console.log("Job ID:", jobId, "User ID:", userId);
 
     if (!userId) {
       return res.status(400).json({ success: false, message: "User ID is required" });
@@ -98,10 +100,12 @@ export async function acceptCandidate(req, res) {
     }
 
     await job.save();
-    const populatedJob = await job
-      .populate("company", "name")
-      .populate("assignedTo", "name email")
-      .populate("jobApplicants", "name email");
+
+    const populatedJob = await job.populate([
+      { path: "company", select: "name" },
+      { path: "assignedTo", select: "fullName email" },
+      { path: "jobApplicants", select: "fullName email" },
+    ]);
 
     res.status(200).json({ success: true, job: populatedJob });
   } catch (error) {
@@ -109,6 +113,7 @@ export async function acceptCandidate(req, res) {
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 }
+
 
 // Reject a candidate for a job
 export async function rejectCandidate(req, res) {

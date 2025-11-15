@@ -5,6 +5,7 @@ import { useState } from "react";
 
 const Home = () => {
   const [jobs, setJobs] = useState([{
+    _id:"",
     name: "",
     description: "",
     skills: "",
@@ -64,7 +65,7 @@ const Home = () => {
   // ];
 
   useEffect(() => {
-    const fetchTasks = async () => {
+    const fetchJobs = async () => {
       try {
         const res = await fetch("http://localhost:5001/api/jobs/user/getJobs", {
           credentials: "include"
@@ -77,7 +78,7 @@ const Home = () => {
       }
     };
 
-    fetchTasks();
+    fetchJobs();
   }, []);
 
   return (
@@ -103,6 +104,7 @@ const Home = () => {
           {jobs.map((job, index) => (
             <JobCard
               key={index}
+              id={job._id}
               name={job.name}
               description={job.description}
               skills={job.skills}
