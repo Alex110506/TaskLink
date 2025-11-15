@@ -41,47 +41,88 @@ app.use("/api/jobs",jobRoutes)
  * POST /optimize-cv
  * Body: { resumeText: string, userInstruction: string }
  */
-app.post('/api/optimize-cv', async (req, res) => { 
+app.post('/api/optimize-cv', async (req, res) => {
+
     try {
+
         const { resumeText, userInstruction } = req.body;
 
+
+
         if (!resumeText) {
+
             return res.status(400).json({ error: "Resume text is required." });
+
         }
 
-        
+
+
+       
+
         const response = await ai.models.generateContent({
+
           model: "gemini-2.5-flash",
+
           contents: `
+
             You are an expert AI Resume Builder and Career Coach.
+
             Rewrite and optimize the resume based on the following instruction:
 
+
+
             USER INSTRUCTION:
+
             ${userInstruction || "Improve grammar, tone, and clarity."}
 
+
+
             RAW RESUME TEXT:
+
             ${resumeText}
 
+
+
             OUTPUT REQUIREMENTS:
+
             - Only output the improved resume.
+
             - Use Markdown formatting.
+
             - No extra explanations or commentary.
+
         `,
+
         });
-        
+
+       
+
+
 
         res.json({
+
             success: true,
+
             data: response.text
+
         });
 
+
+
     } catch (error) {
+
         console.error("Error generating CV:", error);
+
         res.status(500).json({
+
             success: false,
+
             error: "Failed to process the request. Please try again."
+
         });
+
     }
+
 });
 
 
