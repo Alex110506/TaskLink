@@ -145,7 +145,8 @@ const Auth = () => {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(user), // assuming `user` is your state object
+            body: JSON.stringify(user), 
+            credentials:"include"
           }
         );
 
@@ -205,7 +206,8 @@ const Auth = () => {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(business), // assuming `user` is your state object
+            body: JSON.stringify(business), 
+            credentials:"include"
           }
         );
 
@@ -286,6 +288,7 @@ const Auth = () => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({ email: newEmail, password }),
+            credentials:"include"
           }
         );
 
@@ -348,6 +351,7 @@ const Auth = () => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({ email: newEmail, password }),
+            credentials:"include"
           }
         );
 

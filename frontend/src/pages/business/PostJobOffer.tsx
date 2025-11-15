@@ -3,33 +3,74 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Briefcase, Plus, X } from "lucide-react";
+import { Briefcase } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuthStore } from "@/lib/utils";
 
 const PostJobOffer = () => {
-  const [skills, setSkills] = useState<string[]>([]);
-  const [skillInput, setSkillInput] = useState("");
   const { toast } = useToast();
 
-  const addSkill = () => {
-    if (skillInput.trim() && !skills.includes(skillInput.trim())) {
-      setSkills([...skills, skillInput.trim()]);
-      setSkillInput("");
+  const { businessUser } = useAuthStore();
+  console.log(businessUser);
+
+  // --- FULL FORM STATE ---
+  const [jobTitle, setJobTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [skillInput, setSkillInput] = useState("");   // comma-separated string
+  const [positions, setPositions] = useState(1);
+  const [location, setLocation] = useState("");
+  const [employmentType, setEmploymentType] = useState("Remote");
+
+  // --- SIMPLE FETCH POST ---
+  const handlePost = async () => {
+    try {
+      const res = await fetch("http://localhost:5001/api/jobs/business/createJob", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name:jobTitle,
+          description,
+          skills: skillInput,
+          numberOfPositions:positions,
+          location,
+          employmentType:employmentType.toLowerCase(),
+          assignedTo:[],
+          jobApplicants:[]
+        }),
+        credentials:'include'
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast({
+          title: "Error posting job",
+          description: data.error || "Unknown error.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Job Posted Successfully!",
+        description: "Your job offer is now live.",
+      });
+    } catch (err) {
+      toast({
+        title: "Network Error",
+        description: "Could not reach server.",
+        variant: "destructive",
+      });
     }
   };
 
-  const removeSkill = (skillToRemove: string) => {
-    setSkills(skills.filter(skill => skill !== skillToRemove));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  // --- MAIN SUBMIT ---
+  const handleSubmit = (e) => {
     e.preventDefault();
-    toast({
-      title: "Job Posted Successfully!",
-      description: "Your job offer has been published and is now visible to candidates.",
-    });
+    handlePost();
   };
 
   return (
@@ -50,6 +91,7 @@ const PostJobOffer = () => {
             </CardTitle>
             <CardDescription>Fill in the information about the position</CardDescription>
           </CardHeader>
+
           <CardContent className="space-y-6">
             {/* Job Title */}
             <div className="space-y-2">
@@ -57,18 +99,9 @@ const PostJobOffer = () => {
               <Input
                 id="job-title"
                 placeholder="e.g., Senior Frontend Developer"
+                value={jobTitle}
+                onChange={(e) => setJobTitle(e.target.value)}
                 required
-                className="bg-background/50 border-border/50 focus:border-primary"
-              />
-            </div>
-
-            {/* Department */}
-            <div className="space-y-2">
-              <Label htmlFor="department">Department</Label>
-              <Input
-                id="department"
-                placeholder="e.g., Engineering"
-                className="bg-background/50 border-border/50 focus:border-primary"
               />
             </div>
 
@@ -77,48 +110,23 @@ const PostJobOffer = () => {
               <Label htmlFor="description">Job Description *</Label>
               <Textarea
                 id="description"
-                placeholder="Describe the role, responsibilities, and what makes this position exciting..."
+                placeholder="Describe the role..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 required
-                className="min-h-[200px] bg-background/50 border-border/50 focus:border-primary resize-none"
+                className="min-h-[200px]"
               />
             </div>
 
             {/* Required Skills */}
             <div className="space-y-2">
               <Label htmlFor="skills">Required Skills *</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="skills"
-                  value={skillInput}
-                  onChange={(e) => setSkillInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
-                  placeholder="Add a skill and press Enter"
-                  className="bg-background/50 border-border/50 focus:border-primary"
-                />
-                <Button type="button" onClick={addSkill} variant="outline" className="border-primary/30">
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              {skills.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {skills.map((skill, index) => (
-                    <Badge 
-                      key={index} 
-                      variant="secondary" 
-                      className="bg-primary/10 text-primary border-primary/20 pr-1"
-                    >
-                      {skill}
-                      <button
-                        type="button"
-                        onClick={() => removeSkill(skill)}
-                        className="ml-2 hover:text-destructive"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              )}
+              <Input
+                id="skills"
+                placeholder="Separate by comma"
+                value={skillInput}
+                onChange={(e) => setSkillInput(e.target.value)}
+              />
             </div>
 
             {/* Number of Positions */}
@@ -128,9 +136,9 @@ const PostJobOffer = () => {
                 id="positions"
                 type="number"
                 min="1"
-                defaultValue="1"
+                value={positions}
+                onChange={(e) => setPositions(Number(e.target.value))}
                 required
-                className="bg-background/50 border-border/50 focus:border-primary"
               />
             </div>
 
@@ -139,64 +147,43 @@ const PostJobOffer = () => {
               <Label htmlFor="location">Location</Label>
               <Input
                 id="location"
-                placeholder="e.g., San Francisco, CA or Remote"
-                className="bg-background/50 border-border/50 focus:border-primary"
+                placeholder="e.g., Remote or San Francisco"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
               />
             </div>
 
             {/* Employment Type */}
             <div className="space-y-2">
               <Label htmlFor="employment-type">Employment Type</Label>
-              <select
+              {/* <select
                 id="employment-type"
-                className="w-full h-10 px-3 rounded-md border border-border/50 bg-background/50 focus:border-primary focus:outline-none"
+                
+                className="w-full h-10 px-3 rounded-md border"
               >
-                <option>Full-time</option>
-                <option>Part-time</option>
-                <option>Contract</option>
-                <option>Freelance</option>
+                <option>Remote</option>
+                <option>On-site</option>
+                <option>Hybrid</option>
+              </select> */}
+              <select id="employment-type" value={employmentType}
+                onChange={(e) => setEmploymentType(e.target.value)} 
+                className="w-full h-10 px-3 rounded-md border border-border/50 bg-background/50 focus:border-primary focus:outline-none" 
+              > 
+                <option>Remote</option> 
+                <option>On-site</option> 
+                <option>Hybrid</option> 
               </select>
-            </div>
-
-            {/* Salary Range */}
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="salary-min">Salary Range (Min)</Label>
-                <Input
-                  id="salary-min"
-                  type="number"
-                  placeholder="e.g., 80000"
-                  className="bg-background/50 border-border/50 focus:border-primary"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="salary-max">Salary Range (Max)</Label>
-                <Input
-                  id="salary-max"
-                  type="number"
-                  placeholder="e.g., 120000"
-                  className="bg-background/50 border-border/50 focus:border-primary"
-                />
-              </div>
             </div>
 
             {/* Submit Button */}
             <div className="flex gap-4 pt-4">
-              <Button 
+              <Button
                 type="submit"
-                className="flex-1 bg-gradient-to-r from-primary via-blue-600 to-accent hover:opacity-90 shadow-lg shadow-primary/30"
+                className="flex-1 bg-gradient-to-r from-primary via-blue-600 to-accent"
                 size="lg"
               >
                 <Briefcase className="h-5 w-5 mr-2" />
                 Post Job Offer
-              </Button>
-              <Button 
-                type="button"
-                variant="outline"
-                size="lg"
-                className="border-border/50"
-              >
-                Save as Draft
               </Button>
             </div>
           </CardContent>

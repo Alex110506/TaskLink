@@ -14,6 +14,30 @@ import { useToast } from "@/hooks/use-toast";
 
 const Profile = () => {
   const { user } = useAuthStore();
+  
+  function splitSmart(str) {
+    return str
+      .split(/[,\/\s]+/)   // split by comma, slash, or any amount of whitespace
+      .map(s => s.trim())  // remove leftover spaces
+      .filter(s => s.length > 0); // remove empty entries
+  }
+
+  function getInitials(name) {
+    return name
+      .trim()                     // remove surrounding spaces
+      .split(/\s+/)               // split by one or more spaces
+      .filter(part => part.length > 0)  // remove empty parts
+      .slice(0, 2)                // take only the first 2 name parts
+      .map(part => part[0].toUpperCase()) // take first letter & uppercase
+      .join("");                  // join initials together
+  }
+
+  const skillsArr=splitSmart(user.skills)
+  const skillElems=skillsArr.map((item,idx)=>{
+    return <Badge variant="secondary" key={idx}>{item}</Badge>
+  })
+
+  
 
   const { toast } = useToast();
 
@@ -62,7 +86,7 @@ const Profile = () => {
           <div className="flex flex-col md:flex-row gap-6">
             <Avatar className="h-24 w-24">
               <AvatarFallback className="bg-primary/10 text-primary text-2xl font-bold">
-                JD
+                {getInitials(user.fullName)}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
@@ -93,9 +117,7 @@ const Profile = () => {
               </div>
               <div className="flex flex-wrap gap-2">
                 {/* TO DO */}
-                <Badge variant="secondary">Product Management</Badge>
-                <Badge variant="secondary">Agile</Badge>
-                <Badge variant="secondary">Leadership</Badge>
+                {skillElems}
               </div>
             </div>
           </div>

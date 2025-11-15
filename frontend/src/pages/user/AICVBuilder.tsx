@@ -175,6 +175,7 @@ const AICVBuilder = () => {
           resumeText: resumeText, // We send the raw text, but the instruction gives context
           userInstruction: userInstruction // The detailed prompt is the key
         }),
+        credentials:"include"
       });
 
       if (!response.ok) {

@@ -16,6 +16,16 @@ const BusinessProfile = () => {
   const { businessUser } = useAuthStore();
   const { toast } = useToast();
 
+  function getInitials(name) {
+    return name
+      .trim()                     // remove surrounding spaces
+      .split(/\s+/)               // split by one or more spaces
+      .filter(part => part.length > 0)  // remove empty parts
+      .slice(0, 2)                // take only the first 2 name parts
+      .map(part => part[0].toUpperCase()) // take first letter & uppercase
+      .join("");                  // join initials together
+  }
+
   const handleLogout = async () => {
     try {
       const res = await fetch(
@@ -61,13 +71,13 @@ const BusinessProfile = () => {
           <div className="flex flex-col md:flex-row gap-6">
             <Avatar className="h-24 w-24">
               <AvatarFallback className="bg-gradient-to-br from-primary via-blue-600 to-accent text-primary-foreground text-2xl font-bold">
-                TC
+                {getInitials(businessUser.name)}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-foreground">
+                  <h2 className="text-3xl font-bold text-foreground">
                     {businessUser.name}
                   </h2>
                   <p className="text-muted-foreground">{businessUser.field}</p>
@@ -96,18 +106,7 @@ const BusinessProfile = () => {
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-2">
-                {/* TO DO */}
-                <Badge className="bg-primary/10 text-primary border-primary/20">
-                  Software Development
-                </Badge>
-                <Badge className="bg-accent/10 text-accent border-accent/20">
-                  Cloud Services
-                </Badge>
-                <Badge className="bg-blue-600/10 text-blue-500 border-blue-500/20">
-                  AI/ML
-                </Badge>
-              </div>
+              
             </div>
           </div>
         </CardContent>

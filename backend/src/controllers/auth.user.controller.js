@@ -84,8 +84,8 @@ export async function signupU(req, res) {
     res.cookie("jwt", token, {
       maxAge: 30 * 24 * 60 * 60 * 1000,
       httpOnly: true,
-      sameSite: "strict",
-      secure: process.env.NODE_ENV === "production"
+      sameSite: "lax", // allows cross-origin on localhost
+      secure: false,    // false for dev (HTTP)
     });
 
     // 10. Response
@@ -118,12 +118,12 @@ export async function loginU(req,res){
             expiresIn:"30d"
         })
 
-        res.cookie("jwt",token,{
-            maxAge: 30*24*60*60*1000,
-            httpOnly:true,
-            sameSite:"strict",
-            secure:process.env.NODE_ENV==="production"
-        })
+        res.cookie("jwt", token, {
+          maxAge: 30 * 24 * 60 * 60 * 1000,
+          httpOnly: true,
+          sameSite: "lax", // allows cross-origin on localhost
+          secure: false,    // false for dev (HTTP)
+        });
 
         res.status(200).json({success:true,user,token})
     } catch (error) {
