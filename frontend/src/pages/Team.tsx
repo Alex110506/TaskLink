@@ -44,7 +44,7 @@ const Team = () => {
     const getTeams = async () => {
       setLoading(true);
       try {
-        const res = await fetch("http://localhost:5001/api/tasks/user/getTeams", {
+        const res = await fetch("/api/tasks/user/getTeams", {
           method: "GET",
           credentials: "include",
         });
@@ -68,7 +68,7 @@ const Team = () => {
       setError("");
 
       try {
-        const res = await fetch("http://localhost:5001/api/jobs/user/getBusinesses", {
+        const res = await fetch("/api/jobs/user/getBusinesses", {
           method: "GET",
           credentials: "include",
         });

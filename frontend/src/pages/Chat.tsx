@@ -33,7 +33,7 @@ export default function Chat() {
   console.log(userMail, businessMail);
 
   useEffect(() => {
-    socketRef.current = io("http://localhost:5001");
+    socketRef.current = io("/");
 
     socketRef.current.emit("join_room", `${userMail}-${businessMail}`);
 

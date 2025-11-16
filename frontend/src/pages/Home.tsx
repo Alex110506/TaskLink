@@ -31,7 +31,7 @@ const Home = () => {
     const fetchTasks = async () => {
       try {
         const res = await fetch(
-          "http://localhost:5001/api/tasks/user/getTasks",
+          "/api/tasks/user/getTasks",
           {
             method: "GET",
             credentials: "include",
@@ -61,7 +61,7 @@ const Home = () => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const res = await fetch("http://localhost:5001/api/jobs/user/getJobs", {
+        const res = await fetch("/api/jobs/user/getJobs", {
           credentials: "include",
         });
         const data = await res.json();

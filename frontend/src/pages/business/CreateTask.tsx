@@ -39,7 +39,7 @@ const CreateTask = () => {
       setIsLoading(true);
       try {
         const res = await fetch(
-          "http://localhost:5001/api/tasks/business/getUsers",
+          "/api/tasks/business/getUsers",
           {
             method: "GET",
             credentials: "include",
@@ -105,7 +105,7 @@ const CreateTask = () => {
 
     try {
       const res = await fetch(
-        "http://localhost:5001/api/tasks/business/createTask",
+        "/api/tasks/business/createTask",
         {
           method: "POST",
           headers: {

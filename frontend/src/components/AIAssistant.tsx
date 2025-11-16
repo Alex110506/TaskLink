@@ -38,7 +38,7 @@ export function AIAssistant({ jobsData, userData }) {
 
     const sendPrompt = async (userMessage, jobsData, userData) => {
       try {
-        const res = await fetch("http://localhost:5001/api/ai-assistant", {
+        const res = await fetch("/api/ai-assistant", {
           method: "POST",
           credentials: "include",
           headers: {

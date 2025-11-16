@@ -23,7 +23,7 @@ export function JobCard({ id, name, company, description, skills, location, empl
 
   const handleApplication = async () => {
     try {
-      const res = await fetch(`http://localhost:5001/api/jobs/user/${id}/sendApplication`, {
+      const res = await fetch(`/api/jobs/user/${id}/sendApplication`, {
         method: "POST",
         credentials: "include",
         headers: {

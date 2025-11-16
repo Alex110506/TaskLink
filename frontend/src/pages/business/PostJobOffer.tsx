@@ -29,7 +29,7 @@ const PostJobOffer = () => {
   // --- SIMPLE FETCH POST ---
   const handlePost = async () => {
     try {
-      const res = await fetch("http://localhost:5001/api/jobs/business/createJob", {
+      const res = await fetch("/api/jobs/business/createJob", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

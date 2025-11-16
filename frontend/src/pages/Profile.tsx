@@ -29,7 +29,7 @@ const Profile = () => {
   async function updateUserProfile() {
     setIsLoading(true);
     try {
-      const res = await fetch("http://localhost:5001/api/register/user/update", {
+      const res = await fetch("/api/register/user/update", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editedUser),
@@ -90,7 +90,7 @@ const Profile = () => {
 
   const handleLogout = async () => {
     try {
-      const res = await fetch("http://localhost:5001/api/register/user/logout", { method: "GET" });
+      const res = await fetch("/api/register/user/logout", { method: "GET" });
       const data = await res.json();
 
       if (!res.ok) {

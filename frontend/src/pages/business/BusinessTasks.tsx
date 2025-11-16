@@ -29,7 +29,7 @@ const BusinessTasks = () => {
   const fetchTasks = async () => {
     try {
       const res = await fetch(
-        "http://localhost:5001/api/tasks/business/getTasks",
+        "/api/tasks/business/getTasks",
         {
           method: "GET",
           credentials: "include",
@@ -60,7 +60,7 @@ const BusinessTasks = () => {
   const updateTaskStatus = async (taskId: string, newStatus: string) => {
     try {
       const res = await fetch(
-        `http://localhost:5001/api/tasks/business/updateTask/${taskId}`,
+        `/api/tasks/business/updateTask/${taskId}`,
         {
           method: "PATCH",
           credentials: "include",

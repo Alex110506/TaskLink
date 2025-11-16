@@ -44,7 +44,7 @@ const BusinessHome = () => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const res = await fetch("http://localhost:5001/api/jobs/business/getJobs", {
+        const res = await fetch("/api/jobs/business/getJobs", {
           credentials: "include",
           method: "GET",
         });
@@ -63,7 +63,7 @@ const BusinessHome = () => {
 
   const handleAccept = async (userId: string, jobId: string) => {
     try {
-      const res = await fetch(`http://localhost:5001/api/jobs/business/acceptCandidate/${jobId}`, {
+      const res = await fetch(`/api/jobs/business/acceptCandidate/${jobId}`, {
         method: "PATCH",
         credentials: "include",
         headers: {
@@ -90,7 +90,7 @@ const BusinessHome = () => {
 
   const handleReject = async (userId: string, jobId: string) => {
     try {
-      const res = await fetch(`http://localhost:5001/api/jobs/business/rejectCandidate/${jobId}`, {
+      const res = await fetch(`/api/jobs/business/rejectCandidate/${jobId}`, {
         method: "PATCH",
         credentials: "include",
         headers: {
