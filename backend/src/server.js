@@ -116,7 +116,7 @@ app.post('/api/ai-assistant', async (req, res) => {
 // Logic: This file is likely in /backend or /backend/src. 
 // We navigate out to find frontend/dist. 
 // Adjust "../frontend/dist" if your folder structure is different.
-const frontendPath = path.join(__dirname, "../frontend/dist");
+const frontendPath = path.join(__dirname, "../../frontend/dist");
 
 app.use(express.static(frontendPath));
 
