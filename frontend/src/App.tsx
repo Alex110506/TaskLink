@@ -80,9 +80,49 @@ const PublicOnlyLayout = () => {
   return <Outlet />;
 };
 
+interface PremiumRouteProps {
+  children: JSX.Element;
+}
+
+const PremiumRoute = ({ children }: PremiumRouteProps) => {
+  const { user } = useAuthStore();
+
+  // Preluăm subscription din localStorage
+  const subscriptionString = localStorage.getItem("subscription");
+  const subscriptions = subscriptionString
+    ? JSON.parse(subscriptionString)
+    : [];
+  const isPremium = subscriptions.some(
+    (sub: any) => sub.email === user?.email && sub.isSubscribed === true
+  );
+
+  if (!isPremium) {
+    // Nu are abonament -> redirect la /pay
+    return <Navigate to="/pay" replace />;
+  }
+
+  return children;
+};
+
 const App = () => {
   // Preluăm accountType aici pentru a-l folosi în logica de rutare
-  const { accountType } = useAuthStore();
+  const { user, accountType } = useAuthStore();
+
+  // 1. Get the raw string from localStorage
+  const subscriptionString = localStorage.getItem("subscription");
+
+  // 2. Parse it into an array (default to empty array if null)
+  const subscriptions = subscriptionString
+    ? JSON.parse(subscriptionString)
+    : [];
+
+  // 3. Check if the current user's email exists and has isSubscribed: true
+  // We use optional chaining (user?.email) in case user is not loaded yet
+  const isPremium = subscriptions.some(
+    (sub: any) => sub.email === user?.email && sub.isSubscribed === true
+  );
+
+  console.log("User Premium Status:", isPremium);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -115,13 +155,26 @@ const App = () => {
                   <Route path="/team" element={<Team />} />
                   <Route
                     path="/pay"
-                    element={<SubscriptionPaymentForm />}
+                    element={!isPremium ? <SubscriptionPaymentForm /> : <Navigate to="/" replace />}
                   ></Route>
-
                   <Route path="/chat/:type/:id" element={<Chat />} />
-                  <Route path="/map" element={<Map />} />
+                  <Route
+                    path="/map"
+                    element={
+                      <PremiumRoute>
+                        <Map />
+                      </PremiumRoute>
+                    }
+                  />{" "}
                   <Route path="/tasks" element={<Tasks />} />
-                  <Route path="/ai-cv-builder" element={<AICVBuilder />} />
+                  <Route
+                    path="/ai-cv-builder"
+                    element={
+                      <PremiumRoute>
+                        <AICVBuilder />
+                      </PremiumRoute>
+                    }
+                  />
                   <Route path="/profile" element={<Profile />} />
                   {/* Orice altă rută neconcordantă în modul personal redirecționează la / */}
                   <Route path="*" element={<Navigate to="/" replace />} />

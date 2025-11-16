@@ -197,7 +197,7 @@ export function AIAssistant({ jobsData, userData }) {
               <Input
                 placeholder="Write a message..."
                 className="bg-white/20 border-white/20 text-white 
-    placeholder-white/50 transition-all duration-[1200ms]
+    placeholder-red-500 transition-all duration-[1200ms]
     focus:outline-none focus:ring-0 focus:border-transparent input-no-focus"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
