@@ -30,7 +30,7 @@ import { AccountType } from "@/lib/utils";
 // trb legat la login cel mai prob un const din app
 // --------------------------
 interface SidebarLayoutProps {
-  accountType: AccountType
+  accountType: AccountType;
 }
 
 const userMenuItems = [
@@ -71,20 +71,21 @@ export function AppSidebar({ accountType }: SidebarLayoutProps) {
               <SidebarMenu>
                 {userMenuItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild tooltip={item.title}>
-                      <NavLink
-                        to={item.url}
-                        end
-                        className={({ isActive }) =>
-                          isActive
-                            ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                            : "hover:bg-sidebar-accent/50"
-                        }
-                      >
-                        <item.icon className="h-5 w-5" />
-                        <span>{item.title}</span>
-                      </NavLink>
-                    </SidebarMenuButton>
+                    <NavLink to={item.url} end>
+                      {({ isActive }) => (
+                        <SidebarMenuButton
+                          tooltip={item.title}
+                          className={
+                            isActive
+                              ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                              : "hover:bg-sidebar-accent/50"
+                          }
+                        >
+                          <item.icon className="h-5 w-5" />
+                          <span>{item.title}</span>
+                        </SidebarMenuButton>
+                      )}
+                    </NavLink>
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>
@@ -102,20 +103,21 @@ export function AppSidebar({ accountType }: SidebarLayoutProps) {
               <SidebarMenu>
                 {businessMenuItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild tooltip={item.title}>
-                      <NavLink
-                        to={item.url}
-                        end
-                        className={({ isActive }) =>
-                          isActive
-                            ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                            : "hover:bg-sidebar-accent/50"
-                        }
-                      >
-                        <item.icon className="h-5 w-5" />
-                        <span>{item.title}</span>
-                      </NavLink>
-                    </SidebarMenuButton>
+                    <NavLink to={item.url} end>
+                      {({ isActive }) => (
+                        <SidebarMenuButton
+                          tooltip={item.title}
+                          className={
+                            isActive
+                              ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                              : "hover:bg-sidebar-accent/50"
+                          }
+                        >
+                          <item.icon className="h-5 w-5" />
+                          <span>{item.title}</span>
+                        </SidebarMenuButton>
+                      )}
+                    </NavLink>
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>
