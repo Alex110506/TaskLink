@@ -8,6 +8,7 @@ import {
   Route,
   Navigate,
   Outlet,
+  useLocation,
 } from "react-router-dom";
 import { DashboardLayout } from "./components/DashboardLayout";
 
@@ -30,6 +31,7 @@ import CreateTask from "./pages/business/CreateTask";
 import BusinessTasks from "./pages/business/BusinessTasks";
 import BusinessProfile from "./pages/business/BusinessProfile";
 import { useAuthStore } from "./lib/utils";
+import SubscriptionPaymentForm from "./pages/CardInput";
 
 const queryClient = new QueryClient();
 
@@ -37,15 +39,25 @@ const queryClient = new QueryClient();
 // Verifică dacă utilizatorul este logat. Dacă nu, redirecționează către /auth.
 const ProtectedLayout = () => {
   const { user, businessUser, accountType } = useAuthStore();
+  const location = useLocation(); // <-- FIX
 
   if (user === null && businessUser === null) {
-    // Nu este logat
     return <Navigate to="/auth" replace />;
   }
 
-  // Este logat, afișează layout-ul dashboard-ului
-  // DashboardLayout va conține un <Outlet /> pentru rutele copil
-  return <DashboardLayout accountType={accountType} />;
+  const isPayPage = location.pathname === "/pay";
+
+  return (
+    <div
+      className={
+        isPayPage
+          ? "overflow-hidden h-screen flex items-center justify-center"
+          : ""
+      }
+    >
+      <DashboardLayout accountType={accountType} />
+    </div>
+  );
 };
 
 // --- Layout for Rutele Publice ---
@@ -81,8 +93,8 @@ const App = () => {
           <Routes>
             {/* --- Rute Publice (Protejate de PublicOnlyLayout) --- */}
             {/* Doar utilizatorii nelogați pot vedea /landing și /auth */}
-            
-              <Route path="/landing" element={<Index />} />
+
+            <Route path="/landing" element={<Index />} />
             <Route element={<PublicOnlyLayout />}>
               <Route path="/auth" element={<Auth />} />
             </Route>
@@ -101,6 +113,11 @@ const App = () => {
                   />
                   <Route path="/" element={<Home />} />
                   <Route path="/team" element={<Team />} />
+                  <Route
+                    path="/pay"
+                    element={<SubscriptionPaymentForm />}
+                  ></Route>
+
                   <Route path="/chat/:type/:id" element={<Chat />} />
                   <Route path="/map" element={<Map />} />
                   <Route path="/tasks" element={<Tasks />} />

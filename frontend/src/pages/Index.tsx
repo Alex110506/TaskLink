@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import heroImage from "@/assets/hero-image.jpg";
 import { useState } from "react";
+// Added specific icons for the pricing section
+import { Check, Sparkles, MapPin, Zap, Shield, X } from "lucide-react";
 
 const Index = () => {
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
@@ -228,6 +230,158 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* ------------------------------------------ */}
+      {/* NEW SUBSCRIPTION & PRICING SECTION STARTS */}
+      {/* ------------------------------------------ */}
+      <section className="py-20 relative bg-gradient-to-b from-background to-blue-900/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <Badge className="mb-4 bg-primary/10 text-primary border-primary/20 px-3 py-1 text-sm">
+              Simple Pricing
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Choose the plan that fits your{" "}
+              <span className="bg-gradient-to-r from-primary via-blue-500 to-accent bg-clip-text text-transparent">
+                career goals
+              </span>
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              Unlock AI-powered tools and location intelligence with our Pro plan.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto items-center">
+            
+            {/* Free Plan */}
+            <Card className="border-border/50 bg-card/50 backdrop-blur-sm h-full hover:border-primary/30 transition-all duration-300">
+              <CardHeader>
+                <CardTitle className="text-2xl">Starter</CardTitle>
+                <CardDescription>Perfect for getting started</CardDescription>
+                <div className="mt-4">
+                  <span className="text-4xl font-bold">$0</span>
+                  <span className="text-muted-foreground ml-2">/ month</span>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-4">
+                  <li className="flex items-center gap-3 text-sm text-muted-foreground">
+                    <Check className="h-4 w-4 text-primary" /> Basic Profile Creation
+                  </li>
+                  <li className="flex items-center gap-3 text-sm text-muted-foreground">
+                    <Check className="h-4 w-4 text-primary" /> Search for Jobs
+                  </li>
+                  <li className="flex items-center gap-3 text-sm text-muted-foreground">
+                    <Check className="h-4 w-4 text-primary" /> Community Access
+                  </li>
+                  <li className="flex items-center gap-3 text-sm text-muted-foreground">
+                    <Check className="h-4 w-4 text-primary" /> Standard Support
+                  </li>
+                  <li className="flex items-center gap-3 text-sm text-muted-foreground opacity-50">
+                    <X className="h-4 w-4" /> AI Resume Optimization
+                  </li>
+                  <li className="flex items-center gap-3 text-sm text-muted-foreground opacity-50">
+                    <X className="h-4 w-4" /> Job Radar Map
+                  </li>
+                </ul>
+              </CardContent>
+              <CardFooter>
+                <Link to="/auth" className="w-full">
+                  <Button variant="outline" className="w-full h-12 text-lg">
+                    Create Free Account
+                  </Button>
+                </Link>
+              </CardFooter>
+            </Card>
+
+            {/* PRO Plan - Highlighted */}
+            <Card className="relative border-primary bg-gradient-to-br from-background to-primary/5 shadow-xl shadow-primary/10 scale-105 transform">
+              
+              {/* Floating Sparkle Effect */}
+              <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                <Sparkles className="h-32 w-32 text-primary" />
+              </div>
+
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                <Badge className="bg-gradient-to-r from-primary to-blue-600 hover:from-primary hover:to-blue-600 border-0 text-white px-4 py-1 shadow-lg">
+                  Most Popular
+                </Badge>
+              </div>
+
+              <CardHeader>
+                <CardTitle className="text-2xl text-primary flex items-center gap-2">
+                  Pro
+                  <Sparkles className="h-5 w-5 text-yellow-500 fill-yellow-500 animate-pulse" />
+                </CardTitle>
+                <CardDescription>For serious job seekers</CardDescription>
+                <div className="mt-4">
+                  <span className="text-4xl font-bold">$29</span>
+                  <span className="text-muted-foreground ml-2">/ month</span>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-4">
+                  <li className="flex items-center gap-3 font-medium">
+                    <div className="p-1 bg-primary/10 rounded-full">
+                      <Check className="h-4 w-4 text-primary" />
+                    </div>
+                    Everything in Starter
+                  </li>
+                  
+                  {/* Featured Item 1: AI */}
+                  <li className="flex items-start gap-3">
+                    <div className="mt-0.5 p-1 bg-blue-100 rounded-full text-blue-700">
+                      <Sparkles className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <span className="font-bold text-foreground">AI Career Assistant</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Auto-optimize your resume & cover letters.
+                      </p>
+                    </div>
+                  </li>
+
+                  {/* Featured Item 2: Map */}
+                  <li className="flex items-start gap-3">
+                    <div className="mt-0.5 p-1 bg-green-100 rounded-full text-green-700">
+                      <MapPin className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <span className="font-bold text-foreground">Job Radar Map</span>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Visual map of high-paying jobs near you.
+                      </p>
+                    </div>
+                  </li>
+
+                  <li className="flex items-center gap-3 font-medium">
+                    <div className="p-1 bg-primary/10 rounded-full">
+                      <Zap className="h-4 w-4 text-primary" />
+                    </div>
+                    Priority Applications
+                  </li>
+                </ul>
+              </CardContent>
+              <CardFooter>
+                <Link to="/auth" className="w-full">
+                  <Button className="w-full h-12 text-lg bg-gradient-to-r from-primary via-blue-600 to-accent shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:opacity-90 transition-all">
+                    Get Pro Access
+                  </Button>
+                </Link>
+              </CardFooter>
+            </Card>
+          </div>
+
+          <p className="text-center text-sm text-muted-foreground mt-8 flex items-center justify-center gap-2">
+            <Shield className="h-4 w-4" />
+            Secure payment processing. Cancel anytime.
+          </p>
+        </div>
+      </section>
+      {/* ------------------------------------------ */}
+      {/* END SUBSCRIPTION SECTION */}
+      {/* ------------------------------------------ */}
 
       {/* Testimonials */}
       <section className="py-20 md:py-32 bg-gradient-to-b from-blue-900/10 to-transparent">
