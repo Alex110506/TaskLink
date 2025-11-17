@@ -56,14 +56,6 @@ This creates a more efficient, responsive, and effective local job ecosystem, be
 
 ---
 
-## 🚀 Live Demo
-
-The application is deployed and live on Railway!
-
-**[Insert Your Deployed Railway App Link Here]**
-
----
-
 ## ⚙️ Getting Started (How to Run)
 
 To get a local copy up and running, follow these simple steps.
