@@ -9,6 +9,8 @@
 Our app tackles inefficiencies in the local job market by connecting talent with employers quickly. With ~68% of EU SMEs reporting skills shortages, and many job seekers struggling to find contract work, our platform makes hiring and job searching faster, simpler, and more effective.
 
 ---
+![Alt text for the image](presentationPhotos/Screenshot 2025-11-17 232629.png)
+---
 
 ## 🎯 The Problem
 
