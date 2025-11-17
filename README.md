@@ -2,7 +2,7 @@
 
 > **UIHack 2024 Hackathon Project**
 >
-> * **Track:** Private Serviced
+> * **Track:** Private Services
 > * **Result:** 🏆 **2nd Place Winner** 🏆
 > * **Timeframe:** Built in 48 hours by a team of 3.
 
