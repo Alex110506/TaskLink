@@ -13,7 +13,7 @@ const Map = () => {
     const getJobs = async () => {
       try {
         const res = await fetch(
-          "http://localhost:5001/api/jobs/user/getJobs",
+          "/api/jobs/user/getJobs",
           {
             method: "GET",
             credentials: "include",

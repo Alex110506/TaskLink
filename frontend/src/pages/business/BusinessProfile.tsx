@@ -26,7 +26,7 @@ const BusinessProfile = () => {
     setIsLoading(true); // start loading immediately
 
     try {
-      const res = await fetch("http://localhost:5001/api/register/business/update", {
+      const res = await fetch("/api/register/business/update", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -95,7 +95,7 @@ const BusinessProfile = () => {
   const handleLogout = async () => {
     try {
       const res = await fetch(
-        "http://localhost:5001/api/register/business/logout",
+        "/api/register/business/logout",
         {
           method: "GET",
         }

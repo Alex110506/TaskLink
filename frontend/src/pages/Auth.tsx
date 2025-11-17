@@ -139,7 +139,7 @@ const Auth = () => {
     if (accountType === "personal") {
       try {
         const res = await fetch(
-          "http://localhost:5001/api/register/user/signup",
+          "/api/register/user/signup",
           {
             method: "POST",
             headers: {
@@ -200,7 +200,7 @@ const Auth = () => {
     } else {
       try {
         const res = await fetch(
-          "http://localhost:5001/api/register/business/signup",
+          "/api/register/business/signup",
           {
             method: "POST",
             headers: {
@@ -281,7 +281,7 @@ const Auth = () => {
       const newEmail = email;
       try {
         const res = await fetch(
-          "http://localhost:5001/api/register/user/login",
+          "/api/register/user/login",
           {
             method: "POST",
             headers: {
@@ -344,7 +344,7 @@ const Auth = () => {
 
       try {
         const res = await fetch(
-          "http://localhost:5001/api/register/business/login",
+          "/api/register/business/login",
           {
             method: "POST",
             headers: {

@@ -49,7 +49,7 @@ const BusinessChat = () => {
   useEffect(() => {
     const getTeams = async () => {
       try {
-        const res = await fetch("http://localhost:5001/api/tasks/business/getTeams", {
+        const res = await fetch("/api/tasks/business/getTeams", {
           method: "GET",
           credentials: "include",
         });
@@ -71,7 +71,7 @@ const BusinessChat = () => {
       setError("");
 
       try {
-        const res = await fetch("http://localhost:5001/api/jobs/business/getUsers", {
+        const res = await fetch("/api/jobs/business/getUsers", {
           method: "GET",
           credentials: "include",
         });

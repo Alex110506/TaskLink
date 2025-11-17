@@ -166,7 +166,7 @@ const AICVBuilder = () => {
       console.log(resumeText);
 
       // --- Step 3: Call the backend API ---
-      const response = await fetch('http://localhost:5001/api/optimize-cv', {
+      const response = await fetch('/api/optimize-cv', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -12,7 +12,7 @@ const Tasks = () => {
     const fetchTasks = async () => {
       try {
         const res = await fetch(
-          "http://localhost:5001/api/tasks/user/getTasks",
+          "/api/tasks/user/getTasks",
           {
             method: "GET",
             credentials: "include",
