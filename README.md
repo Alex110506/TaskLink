@@ -1,6 +1,6 @@
 # TaskLink
 
-> **UIHack 2024 Hackathon Project**
+> **UniHack 2024 Hackathon Project**
 >
 > * **Track:** Private Services
 > * **Result:** 🏆 **2nd Place Winner** 🏆
